@@ -6,6 +6,7 @@ import RU from '../assets/ru.svg';
 import AR from '../assets/ar.svg';
 import TR from '../assets/tr.svg';
 import EN from '../assets/us.svg';
+import Lexikome from '../assets/lexikome.svg';
 ---
 
 <div id="container">
@@ -14,6 +15,9 @@ import EN from '../assets/us.svg';
 			<div></div>
 			<div class="middle_line"></div>
 			<div></div>
+		</div>
+		<div>
+			<Lexikome class={"lexikome"} height={25} width={111}/>
 		</div>
 		<div class="search">
 			<input type="text" class="search_input"/>
@@ -144,5 +148,24 @@ header{
 	padding:5px 15px;
 	font-family:"Cantarell", sans-serif;
 	text-transform: capitalize;
+}
+	.lexikome{
+		display:none;
+	}
+	div:has(>.lexikome){
+		display:flex;
+		justify-content: center;
+		align-items: center;
+	}
+@media (width > 650px) {
+	.hamburger{
+		display:none;
+	}
+	.lexikome{
+		display:block;
+	}
+	header{
+		justify-content: center;
+	}
 }
 </style>
