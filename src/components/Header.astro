@@ -2,6 +2,10 @@
 import astroLogo from '../assets/astro.svg';
 import background from '../assets/background.svg';
 import Search from '../assets/search.svg';
+import RU from '../assets/ru.svg';
+import AR from '../assets/ar.svg';
+import TR from '../assets/tr.svg';
+import EN from '../assets/us.svg';
 ---
 
 <div id="container">
@@ -19,15 +23,68 @@ import Search from '../assets/search.svg';
 			go to training
 		</div>
 	</header>
+	<div class="subheader">
+		<div class="choose_lang">
+			<div>
+				<label for="tr_lang"><TR width={18} class={"svg_lang"}/>tr</label>
+				<input type="checkbox" id="tr_lang"/>
+			</div>
+			<div>
+				<label for="en_lang"><EN width={18} class={"svg_lang"}/>en</label>
+				<input type="checkbox" id="en_lang"/>
+			</div>
+			<div>
+				<label for="ar_lang"><AR width={18} class={"svg_lang"}/>ar</label>
+				<input type="checkbox" id="ar_lang"/>
+			</div>
+			<div>
+				<label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
+				<input type="checkbox" id="ru_lang"/>
+			</div>
+		</div>
+		<div class="select_last">
+
+		</div>
+	</div>
 </div>
 
 <style>
+#container{
+	display:flex;
+	flex-direction: column;
+}
 header{
 	padding: 15px 25px;
 	display:flex;
 	gap:25px;
 	justify-content: space-between;
 	align-items:center;
+}
+.subheader{
+	display:flex;
+	justify-content: space-around;
+}
+.subheader > .choose_lang{
+	display:flex;
+	gap: 5px;
+}
+.choose_lang div{
+	display:flex;
+	align-items: center;
+	justify-content: center;
+}
+.choose_lang label{
+	font-size: 15px;
+	text-transform: uppercase;
+	user-select: none;
+	font-family: "Cantarell";
+	display:flex;
+	gap:2px;
+}
+.svg_lang{
+	display:block;
+	padding:0px;
+	margin:0px;
 }
 .search{
 	flex-grow: 1;
@@ -56,8 +113,15 @@ header{
 	background: #eee;
 	border:0px solid black;
 	border-radius: 15px;
-	padding:9px;
+	padding:9px 15px;
 	font-size: 15px;
+	outline: none;
+}
+.search_input:focus{
+	outline-width: 1px;
+	outline-color: gray;
+	outline-offset: 0px;
+	outline-style: solid;
 }
 .search_btn{
 	border-radius: 15px;
