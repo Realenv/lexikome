@@ -1,12 +1,9 @@
 ---
-import astroLogo from '../assets/astro.svg';
-import background from '../assets/background.svg';
 import Search from '../assets/search.svg';
 import RU from '../assets/ru.svg';
 import AR from '../assets/ar.svg';
 import TR from '../assets/tr.svg';
 import EN from '../assets/us.svg';
-import Lexikome from '../assets/lexikome.svg';
 ---
 
 <div id="container">
@@ -17,33 +14,39 @@ import Lexikome from '../assets/lexikome.svg';
 			<div></div>
 		</div>
 		<div>
-			<Lexikome class={"lexikome"} height={25} width={111}/>
+			<div class="lexikome">
+				<span class="lexi">Lexi</span>
+				<span class="kome">Kome</span>
+			</div>
 		</div>
 		<div class="search">
 			<input type="text" class="search_input"/>
 			<div class="search_btn"><Search /></div>
 		</div>
 		<div class="train_btn">
-			go to training
+			Train
 		</div>
 	</header>
 	<div class="subheader">
-		<div class="choose_lang">
-			<div>
-				<label for="tr_lang"><TR width={18} class={"svg_lang"}/>tr</label>
-				<input type="checkbox" id="tr_lang"/>
-			</div>
-			<div>
-				<label for="en_lang"><EN width={18} class={"svg_lang"}/>en</label>
-				<input type="checkbox" id="en_lang"/>
-			</div>
-			<div>
-				<label for="ar_lang"><AR width={18} class={"svg_lang"}/>ar</label>
-				<input type="checkbox" id="ar_lang"/>
-			</div>
-			<div>
-				<label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
-				<input type="checkbox" id="ru_lang"/>
+		<div class="pick_lang">
+			<h2>Pick some languages:</h2>
+			<div class="choose_lang">
+				<div>
+					<label for="tr_lang"><TR width={18} class={"svg_lang"}/>tr</label>
+					<input type="checkbox" id="tr_lang" checked/>
+				</div>
+				<div>
+					<label for="en_lang"><EN width={18} class={"svg_lang"}/>en</label>
+					<input type="checkbox" id="en_lang" checked/>
+				</div>
+				<div>
+					<label for="ar_lang"><AR width={18} class={"svg_lang"}/>ar</label>
+					<input type="checkbox" id="ar_lang" checked/>
+				</div>
+				<div>
+					<label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
+					<input type="checkbox" id="ru_lang" checked/>
+				</div>
 			</div>
 		</div>
 		<div class="select_last">
@@ -53,9 +56,58 @@ import Lexikome from '../assets/lexikome.svg';
 </div>
 
 <style>
+*{
+	padding:0px;
+	margin:0px;
+}
+:root{
+	--hue:222
+}
+.lexi{
+	color: black;
+	text-shadow: hsl(var(--hue), 100%, 90%) 0px 5px 15px;
+}
+.pick_lang{
+	display:flex;
+	flex-direction:column;
+}
+.pick_lang > h2{
+	font-weight: 100;
+	font-family: "Cantarell", sans-serif;
+	font-size: 13px;
+	text-transform: uppercase;
+
+	color:black;
+}
+.choose_lang{
+	display:flex;
+	flex-direction:row;
+	gap: 5px;
+}
+.kome{
+	color: white;
+	text-shadow: hsl(var(--hue), 100%, 10%) 0px -5px 15px;
+}
+.lexikome{
+	display:none;
+	font-family:"Cantarell", sans-serif;
+	font-weight: 900;
+	font-size: 19px;
+	transition:1s all;
+}
+.lexikome:hover{
+	filter:contrast(200%) brightness(200%)
+}
+div:has(>.lexikome){
+	display:flex;
+	justify-content: center;
+	align-items: center;
+}
 #container{
 	display:flex;
 	flex-direction: column;
+	background: hsl(var(--hue), 50%, 50%);
+	padding-bottom: 15px;
 }
 header{
 	padding: 15px 25px;
@@ -68,9 +120,22 @@ header{
 	display:flex;
 	justify-content: space-around;
 }
-.subheader > .choose_lang{
-	display:flex;
-	gap: 5px;
+.choose_lang div:has(input){
+	color: hsl(0, 0%, 80%);
+}
+.choose_lang div:has(input:checked){
+	color: hsl(0, 0%, 100%);
+}
+.choose_lang div input{
+	display:none;
+}
+.choose_lang div:has(input) .svg_lang{
+	opacity:75%;
+	filter: brightness(50%)
+}
+.choose_lang div:has(input:checked) .svg_lang{
+	opacity:100%;
+	filter: brightness(100%)
 }
 .choose_lang div{
 	display:flex;
@@ -114,12 +179,15 @@ header{
 	width: 25px;
 }
 .search_input{
-	background: #eee;
+	background: hsl(var(--hue), 70%, 60%);
 	border:0px solid black;
 	border-radius: 15px;
+	max-width: 555px;
 	padding:9px 15px;
 	font-size: 15px;
 	outline: none;
+	flex-grow:1;
+	display:none;
 }
 .search_input:focus{
 	outline-width: 1px;
@@ -139,24 +207,17 @@ header{
 	font-weight: 100;
 }
 .train_btn{
-	border: 1px solid black;
-	border-radius:7px;
+	border-radius:2px;
 	color:black;
+	border: 1px solid black;
 	display:flex;
 	justify-content: center;
 	align-items: center;
+	
 	padding:5px 15px;
 	font-family:"Cantarell", sans-serif;
 	text-transform: capitalize;
 }
-	.lexikome{
-		display:none;
-	}
-	div:has(>.lexikome){
-		display:flex;
-		justify-content: center;
-		align-items: center;
-	}
 @media (width > 650px) {
 	.hamburger{
 		display:none;
@@ -164,8 +225,19 @@ header{
 	.lexikome{
 		display:block;
 	}
+	.search_input{
+		display: block;
+	}
 	header{
 		justify-content: center;
+	}
+	.search{
+		padding: 0px 25px;
+	}
+	.pick_lang{
+		flex-direction: row;
+		align-items: center;
+		gap:15px;
 	}
 }
 </style>
