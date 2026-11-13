@@ -4,6 +4,7 @@ import RU from '../assets/ru.svg';
 import AR from '../assets/ar.svg';
 import TR from '../assets/tr.svg';
 import EN from '../assets/us.svg';
+import Close from '../assets/close.svg';
 ---
 
 <div id="container">
@@ -19,11 +20,14 @@ import EN from '../assets/us.svg';
 				<span class="kome">Kome</span>
 			</div>
 		</div>
-		<div class="search">
-			<input type="text" class="search_input"/>
-			<div class="search_btn"><Search /></div>
+		<div style="position:relative; flex-grow:1;">
+			<div class="search">
+				<div id="close"><Close/></div>
+				<input type="text" id="search_input"/>
+				<div id="search_btn"><Search /></div>
+			</div>
 		</div>
-		<div class="train_btn">
+		<div id="train_btn">
 			Train
 		</div>
 	</header>
@@ -54,14 +58,41 @@ import EN from '../assets/us.svg';
 		</div>
 	</div>
 </div>
-
+<script>
+const search_btn = document.getElementById("search_btn");
+const close = document.getElementById("close");
+const search_input = document.getElementById("search_input");
+if (search_btn && search_input && close){
+	search_btn.onclick = ()=>{
+		search_input.classList.add("user_search");
+	};
+	close.onclick = ()=>{
+		search_input.classList.remove("user_search");
+	};
+}
+</script>
 <style>
 *{
 	padding:0px;
 	margin:0px;
 }
+#search_input{
+	background: hsl(var(--hue), 70%, 60%);
+	border:0px solid black;
+	border-radius: 15px;
+	max-width: 555px;
+	padding:9px 15px;
+	font-size: 15px;
+	outline: none;
+	flex-grow:1;
+	display:none;
+	color:white;
+}
 :root{
 	--hue:222
+}
+#close{
+	display:none;
 }
 .lexi{
 	color: black;
@@ -178,45 +209,31 @@ header{
 	height: 2px;
 	width: 25px;
 }
-.search_input{
-	background: hsl(var(--hue), 70%, 60%);
-	border:0px solid black;
-	border-radius: 15px;
-	max-width: 555px;
-	padding:9px 15px;
-	font-size: 15px;
-	outline: none;
-	flex-grow:1;
-	display:none;
-}
-.search_input:focus{
+#search_input:focus{
 	outline-width: 1px;
 	outline-color: gray;
 	outline-offset: 0px;
 	outline-style: solid;
 }
-.search_btn{
-	border-radius: 15px;
+#search_btn{
 	display:flex;
 	justify-content: center;
 	padding:5px;
 	align-items: center;
-	font-size: 15px;
-	text-transform: uppercase;
-	font-family:"Cantarell", sans-serif;
-	font-weight: 100;
 }
-.train_btn{
+
+#train_btn{
 	border-radius:2px;
-	color:black;
-	border: 1px solid black;
+	background:hsl(var(--hue), 100%, 70%);
+	box-shadow: 0px 5px 15px 1px hsl(var(--hue), 50%, 52%);
+	color:#eee;
+	text-transform: uppercase;
 	display:flex;
+	letter-spacing: -1px;
 	justify-content: center;
 	align-items: center;
-	
 	padding:5px 15px;
 	font-family:"Cantarell", sans-serif;
-	text-transform: capitalize;
 }
 @media (width > 650px) {
 	.hamburger{
@@ -225,7 +242,7 @@ header{
 	.lexikome{
 		display:block;
 	}
-	.search_input{
+	#search_input{
 		display: block;
 	}
 	header{
@@ -238,6 +255,32 @@ header{
 		flex-direction: row;
 		align-items: center;
 		gap:15px;
+	}
+}
+@media (width <= 650px) {
+	.user_search{
+		display: block !important;
+		padding-right:45px !important;
+	}
+	.search:has(> .user_search) #close{
+		position:absolute;
+		top:21px;
+		right:15px;
+		display:block;
+	}
+	.search:has(> .user_search){
+		position:fixed;
+		width: 100vw;
+		top:0px;
+		left:0px;
+		padding:15px 45px 15px 25px;
+		box-sizing: border-box;
+		background-color: hsl(var(--hue), 50%, 50%);
+	}
+	.search:has(> .user_search) #search_btn{
+		position:absolute;
+		top:15px;
+		right:49px;
 	}
 }
 </style>
