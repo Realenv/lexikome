@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "lexikome",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.4.10"
+    "astro": "^7.4.10",
+    "wrangler": "^4.161.0"
   }
 }
