@@ -9,11 +9,6 @@ import Close from '../assets/close.svg';
 
 <div id="container">
 	<header>
-		<div class="hamburger">
-			<div></div>
-			<div class="middle_line"></div>
-			<div></div>
-		</div>
 		<div>
 			<div class="lexikome">
 				<span class="lexi">Lexi</span>
@@ -120,7 +115,6 @@ if (search_btn && search_input && close){
 	text-shadow: hsl(var(--hue), 100%, 10%) 0px -5px 15px;
 }
 .lexikome{
-	display:none;
 	font-family:"Cantarell", sans-serif;
 	font-weight: 900;
 	font-size: 19px;
@@ -137,11 +131,11 @@ div:has(>.lexikome){
 #container{
 	display:flex;
 	flex-direction: column;
-	background: hsl(var(--hue), 50%, 50%);
-	padding-bottom: 15px;
+	background: hsl(var(--hue), 63%, 40%);
+	box-shadow: 0px 0px 15px 9px hsl(var(--hue), 63%, 40%);
 }
 header{
-	padding: 15px 25px;
+	padding: 15px 15px 9px 15px;
 	display:flex;
 	gap:25px;
 	justify-content: space-between;
@@ -193,22 +187,6 @@ header{
 	justify-content:center;
 	align-items:center;
 }
-.hamburger{
-	display:flex;
-	flex-direction:column;
-	justify-content:start;
-	gap: 9px;
-}
-.hamburger div:not(.middle_line){
-	background-color: black;
-	height: 2px;
-	width: 35px;
-}
-.middle_line{
-	background-color: black;
-	height: 2px;
-	width: 25px;
-}
 #search_input:focus{
 	outline-width: 1px;
 	outline-color: gray;
@@ -221,7 +199,6 @@ header{
 	padding:5px;
 	align-items: center;
 }
-
 #train_btn{
 	border-radius:2px;
 	background:hsl(var(--hue), 100%, 70%);
@@ -236,12 +213,6 @@ header{
 	font-family:"Cantarell", sans-serif;
 }
 @media (width > 650px) {
-	.hamburger{
-		display:none;
-	}
-	.lexikome{
-		display:block;
-	}
 	#search_input{
 		display: block;
 	}
