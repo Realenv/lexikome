@@ -89,6 +89,7 @@ import Sound from "../assets/sound.svg"
 	font-family:"lato", sans-serif;
     padding:15px;
     box-sizing: border-box;
+    box-shadow: 0px 5px 11px 11px hsla(var(--hue), 50%, 20%, 0.1);
 }
 #container > *:first-child{
     display:flex;
@@ -99,9 +100,19 @@ import Sound from "../assets/sound.svg"
     color:white;
     font-weight: 500;
 }
+#container > *:first-child > div{
+    color:hsl(var(--hue), 60%, 60%);
+}
+#container > *:first-child > div:hover{
+    color:hsl(var(--hue), 60%, 70%);
+}
+#container > *:first-child > div:active{
+    color:hsl(var(--hue), 90%, 70%);
+}
 #container > *:nth-child(2){
     font-weight: 300;
     padding:0px 15px 0px 15px;
+    user-select: none;
 }
 #container > *:nth-child(3){
     padding:0px 15px 0px 15px;
@@ -127,6 +138,7 @@ import Sound from "../assets/sound.svg"
     font-weight: 300;
     color: hsl(var(--hue), 0%, 90%);
     padding: 0px 5px;
+    user-select: none;
 }
 #container > *:nth-child(3) > div > *:first-child > i{
     font-weight: 500;
@@ -141,6 +153,15 @@ import Sound from "../assets/sound.svg"
     font-weight: 300;
     padding: 0px;
     text-align: end;
+    user-select: none;
+    color: hsl(var(--hue), 50%, 50%);
+    transition: 100ms color;
+}
+#container > *:nth-child(3) > *:last-child:hover, #container > *:last-child:hover{
+    color: hsl(var(--hue), 50%, 70%);
+}
+#container > *:nth-child(3) > *:last-child:active, #container > *:last-child:active{
+    color: hsl(var(--hue), 50%, 30%);
 }
 #container table{
     text-align: center;
@@ -150,9 +171,11 @@ import Sound from "../assets/sound.svg"
     background-color: hsl(var(--hue), 50%, 25%);
     padding:1px;
     font-weight: 300;
+    user-select: none;
 }
 #container tbody th:not(:first-child){
     background-color: hsl(var(--hue), 50%, 12%);
+    user-select: auto;
     font-weight: 500;
 }
 </style>
