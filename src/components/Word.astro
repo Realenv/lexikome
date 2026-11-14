@@ -1,0 +1,158 @@
+---
+import Sound from "../assets/sound.svg"
+---
+
+<div id="container">
+    <div>
+        <h2>To work</h2>
+        <div><Sound/></div>
+    </div>
+    <h3>Travailler - Faire</h3>
+    <div>
+        <div>
+            <h4>Sens premier -<i>Travailler</i></h4>
+            <h5>I'm <b>working</b> today.</h5>
+            <h5>Je <b>travaille</b> aujourd'hui.</h5>
+        </div>
+        <div>
+            <h4>Sens figuré -<i>Faire</i></h4>
+            <h5>He is <b>working</b> because he is busy.</h5>
+            <h5>Il <b>travaille</b> parce qu'il est occupé.</h5>
+        </div>
+        <div>See other examples...</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Pronons / tenses</th>
+                <th>Past</th>
+                <th>Present</th>
+                <th>Future</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>I</th>
+                <th>worked</th>
+                <th>work</th>
+                <th>will work</th>
+            </tr>
+            <tr>
+                <th>You</th>
+                <th>worked</th>
+                <th>work</th>
+                <th>will work</th>
+            </tr>
+            <tr>
+                <th>He / She / It</th>
+                <th>worked</th>
+                <th>works</th>
+                <th>will works</th>
+            </tr>
+            <tr>
+                <th>We</th>
+                <th>worked</th>
+                <th>work</th>
+                <th>will work</th>
+            </tr>
+            <tr>
+                <th>You</th>
+                <th>worked</th>
+                <th>work</th>
+                <th>will work</th>
+            </tr>
+            <tr>
+                <th>They</th>
+                <th>worked</th>
+                <th>work</th>
+                <th>will work</th>
+            </tr>
+        </tbody>
+    </table>
+    <div>See other tenses...</div>
+</div>
+<script>
+
+</script>
+<style>
+*{
+	padding:0px;
+	margin:0px;
+}
+#container{
+    display:flex;
+    flex-direction:column;
+    background-color: hsl(var(--hue), 50%, 15%);
+    color: #ddd;
+    max-width: 355px;
+    margin: 15px;
+	font-family:"lato", sans-serif;
+    padding:15px;
+    box-sizing: border-box;
+}
+#container > *:first-child{
+    display:flex;
+    justify-content: space-between;
+    padding: 2px 7px;
+}
+#container > *:first-child > h2{
+    color:white;
+    font-weight: 500;
+}
+#container > *:nth-child(2){
+    font-weight: 300;
+    padding:0px 15px 0px 15px;
+}
+#container > *:nth-child(3){
+    padding:0px 15px 0px 15px;
+    display:flex;
+    flex-direction: column;
+    max-width: fit-content;
+}
+#container > *:nth-child(3) > div{
+    display:flex;
+    flex-direction: column;
+    padding-top: 9px;
+}
+#container > *:nth-child(3) > div > *:last-child{
+    text-align: end;
+    font-style: italic;
+    font-weight: 500;
+}
+#container > *:nth-child(3) > div b{
+    font-weight: 500;
+    color: hsl(var(--hue), 60%, 50%);
+}
+#container > *:nth-child(3) > div > *:first-child{
+    font-weight: 300;
+    color: hsl(var(--hue), 0%, 90%);
+    padding: 0px 5px;
+}
+#container > *:nth-child(3) > div > *:first-child > i{
+    font-weight: 500;
+    color: hsl(var(--hue), 100%, 60%);
+    padding: 0px 5px;
+}
+#container > *:nth-child(3) > div > *:nth-child(2){
+    font-weight: 900;
+    padding: 2px 1px 1px 1px;
+}
+#container > *:nth-child(3) > *:last-child, #container > *:last-child{
+    font-weight: 300;
+    padding: 0px;
+    text-align: end;
+}
+#container table{
+    text-align: center;
+    margin-top: 7px;
+}
+#container th{
+    background-color: hsl(var(--hue), 50%, 25%);
+    padding:1px;
+    font-weight: 300;
+}
+#container tbody th:not(:first-child){
+    background-color: hsl(var(--hue), 50%, 12%);
+    font-weight: 500;
+}
+</style>
