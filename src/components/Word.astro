@@ -1,90 +1,169 @@
 ---
 import Sound from "../assets/sound.svg"
+import RU from '../assets/ru.svg';
+import AR from '../assets/ar.svg';
+import TR from '../assets/tr.svg';
+import EN from '../assets/us.svg';
+import type { SvgComponent } from "astro/types";
+
+const matching: {[key: string]: SvgComponent & ImageMetadata} = {
+    "english": EN,
+    "turkish": TR,
+    "arabic": AR,
+    "russian": RU
+}
+const {word, audio, context_aware_meanings, language} = Astro.props;
+const LanguageSvg = matching[language];
+const parsed_data: [
+  [string, string, string[], [string, string][]][],
+  [string, [string, string][]][]
+] = JSON.parse(context_aware_meanings);
+let all_possible_values: string[] = [];
+parsed_data[0].map((definition) => {
+    for(let z in definition[2]){
+        if (!(all_possible_values.includes(definition[2][z]))){
+            all_possible_values.push(definition[2][z]);
+        }
+    }
+});
+const max_num = parsed_data[1].length;
 ---
 
 <div id="container">
     <div>
-        <h2>To work</h2>
+        <h2><LanguageSvg width={18} height={18}/><span>{word}</span></h2>
         <div><Sound/></div>
     </div>
-    <h3>Travailler - Faire</h3>
+    <h3>{all_possible_values.join(" - ")}</h3>
     <div>
-        <div>
-            <h4>Sens premier -<i>Travailler</i></h4>
-            <h5>I'm <b>working</b> today.</h5>
-            <h5>Je <b>travaille</b> aujourd'hui.</h5>
-        </div>
-        <div>
-            <h4>Sens figuré -<i>Faire</i></h4>
-            <h5>He is <b>working</b> because he is busy.</h5>
-            <h5>Il <b>travaille</b> parce qu'il est occupé.</h5>
-        </div>
-        <div>See other examples...</div>
+        {
+            parsed_data[0].map((definition) => {
+                let translated_equivalents = [];
+                for(let z in definition[2]){
+                    translated_equivalents.push(<i>{definition[2][z]}</i>)
+                    translated_equivalents.push(<>/</>)
+                }
+                translated_equivalents.pop();
+                return  <div><h4>{definition[0]} - {translated_equivalents}</h4><div>
+                            {
+                                definition[3].map((example)=>{
+                                    return <h5>{example[0]}</h5>
+                                        <h5>{example[1]}</h5>
+                                })
+                            }
+                        </div></div>
+            })
+        }
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Pronons / tenses</th>
-                <th>Past</th>
-                <th>Present</th>
-                <th>Future</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th>I</th>
-                <th>worked</th>
-                <th>work</th>
-                <th>will work</th>
-            </tr>
-            <tr>
-                <th>You</th>
-                <th>worked</th>
-                <th>work</th>
-                <th>will work</th>
-            </tr>
-            <tr>
-                <th>He / She / It</th>
-                <th>worked</th>
-                <th>works</th>
-                <th>will works</th>
-            </tr>
-            <tr>
-                <th>We</th>
-                <th>worked</th>
-                <th>work</th>
-                <th>will work</th>
-            </tr>
-            <tr>
-                <th>You</th>
-                <th>worked</th>
-                <th>work</th>
-                <th>will work</th>
-            </tr>
-            <tr>
-                <th>They</th>
-                <th>worked</th>
-                <th>work</th>
-                <th>will work</th>
-            </tr>
-        </tbody>
-    </table>
-    <div>See other tenses...</div>
+    <div id="conjugation">
+        {
+            parsed_data[1].map(([tense_name, conjugation]) => {
+                return <table>
+                    <thead>
+                        <tr>
+                            <th>Pronons / tenses</th>
+                            <th>{tense_name}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            conjugation.map(([pronon, verb])=>{
+                                return <tr>
+                                    <th>{pronon}</th>
+                                    <th>{verb}</th>
+                                </tr>;
+                            })
+                        }
+                    </tbody>
+                </table>
+            })
+        }
+    </div>
+    <div class="navigation_btns">
+        <button id="previous">previous tense</button>
+        <button id="next">next tense</button>
+    </div>
 </div>
 <script>
-
+const previous = document.getElementById("previous");
+const next = document.getElementById("next");
+const conjugation = document.getElementById("conjugation");
+let count = 0;
+function show_tense(){
+    const children = conjugation?.children!;
+    for(let i = 0; i < children.length; i++){
+        if(i != count){
+            children[i].setAttribute("style", "display:none");
+        }
+        else{
+            children[i].setAttribute("style", "display:table");
+        }
+    }
+}
+if(previous && next && conjugation){
+    previous.onclick = () => {
+        count--;
+        if (count == -1){
+            count = conjugation.children.length - 1;
+        }
+        show_tense();
+    }
+    next.onclick = () => {
+        count++;
+        if (count == conjugation.children.length){
+            count = 0;
+        }
+        show_tense();
+    }
+}
 </script>
 <style>
 *{
 	padding:0px;
 	margin:0px;
 }
+#conjugation{
+    display: flex;
+    flex-direction: column;
+}
+.navigation_btns{
+    display:flex;
+    justify-content: flex-end;
+    gap:5px;
+    padding: 5px;
+}
+.navigation_btns button{
+    border:none;
+    padding: 5px 11px;
+    color:white;
+    font-family: "lato", sans-serif;
+    text-transform: uppercase;
+    font-weight: 300;
+    background-color: hsl(var(--hue), 50%, 25%);
+}
+.navigation_btns > button:first-child{
+    padding: 5px 11px;
+    color:white;
+    background:none;
+    border: 1px solid hsl(var(--hue), 50%, 27%);
+}
+#conjugation > table tr > *:first-child{
+    min-width: fit-content;
+    width:105px;
+}
+#conjugation > table{
+    display:none;
+}
+#conjugation > table:first-child{
+    display:table;
+    flex-grow:2;
+}
 #container{
     display:flex;
     flex-direction:column;
     background-color: hsl(var(--hue), 50%, 15%);
     color: #ddd;
-    max-width: 355px;
+    max-width: 455px;
     margin: 15px;
 	font-family:"lato", sans-serif;
     padding:15px;
@@ -94,11 +173,15 @@ import Sound from "../assets/sound.svg"
 #container > *:first-child{
     display:flex;
     justify-content: space-between;
+    align-items: center;
     padding: 2px 7px;
 }
 #container > *:first-child > h2{
     color:white;
     font-weight: 500;
+    display:flex;
+    align-items: center;
+    gap:5px;
 }
 #container > *:first-child > div{
     color:hsl(var(--hue), 60%, 60%);
@@ -120,15 +203,19 @@ import Sound from "../assets/sound.svg"
     flex-direction: column;
     max-width: fit-content;
 }
-#container > *:nth-child(3) > div{
+#container > *:nth-child(3) > div, #container > *:nth-child(3) > div > div{
     display:flex;
     flex-direction: column;
-    padding-top: 9px;
+    max-width: fit-content;
 }
-#container > *:nth-child(3) > div > *:last-child{
+#container > *:nth-child(3) > div > div{
+    padding:5px 15px;
+}
+#container > *:nth-child(3) > div > div > *:nth-child(even){
     text-align: end;
     font-style: italic;
     font-weight: 500;
+    padding-bottom: 5px;
 }
 #container > *:nth-child(3) > div b{
     font-weight: 500;
@@ -144,24 +231,6 @@ import Sound from "../assets/sound.svg"
     font-weight: 500;
     color: hsl(var(--hue), 100%, 60%);
     padding: 0px 5px;
-}
-#container > *:nth-child(3) > div > *:nth-child(2){
-    font-weight: 900;
-    padding: 2px 1px 1px 1px;
-}
-#container > *:nth-child(3) > *:last-child, #container > *:last-child{
-    font-weight: 300;
-    padding: 0px;
-    text-align: end;
-    user-select: none;
-    color: hsl(var(--hue), 50%, 50%);
-    transition: 100ms color;
-}
-#container > *:nth-child(3) > *:last-child:hover, #container > *:last-child:hover{
-    color: hsl(var(--hue), 50%, 70%);
-}
-#container > *:nth-child(3) > *:last-child:active, #container > *:last-child:active{
-    color: hsl(var(--hue), 50%, 30%);
 }
 #container table{
     text-align: center;
