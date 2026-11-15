@@ -10,10 +10,10 @@ import Close from '../assets/close.svg';
 <div id="header">
 	<header>
 		<div>
-			<div class="lexikome">
+			<a class="lexikome" href="/">
 				<span class="lexi">Lexi</span>
 				<span class="kome">Kome</span>
-			</div>
+			</a>
 		</div>
 		<div style="position:relative; flex-grow:1;">
 			<div class="search">
@@ -22,9 +22,12 @@ import Close from '../assets/close.svg';
 				<div id="search_btn"><Search style={"filter:invert(1)"}/></div>
 			</div>
 		</div>
-		<div id="train_btn">
+		<a href="/add-word" id="addword_btn">
+			Add word
+		</a>
+		<a href="/train" id="train_btn">
 			Train
-		</div>
+		</a>
 	</header>
 	<div class="subheader">
 		<div class="pick_lang">
@@ -145,7 +148,10 @@ for(const [key, value] of Object.entries(matching)){
 .lexikome{
 	font-family:"lato", sans-serif;
 	font-weight: 900;
-	font-size: 19px;
+	font-size: 25px;
+	display:block;
+	text-decoration: none;
+	font-style: italic;
 	transition:1s all;
 }
 .lexikome:hover{
@@ -165,7 +171,9 @@ div:has(>.lexikome){
 header{
 	padding: 15px 5vw 9px 5vw;
 	display:flex;
-	gap:25px;
+	flex-wrap:wrap;
+	gap:5px 25px;
+	justify-content:end;
 }
 .subheader{
 	display:flex;
@@ -227,9 +235,15 @@ header{
 	align-items: center;
 }
 #train_btn{
-	border-radius:2px;
 	background:hsl(var(--hue), 100%, 70%);
-	box-shadow: 0px 5px 15px 1px hsl(var(--hue), 50%, 52%);
+}
+#addword_btn{
+	border:1px solid hsl(var(--hue), 100%, 70%);
+}
+#addword_btn, #train_btn{
+	border-radius:2px;
+	text-decoration: none;
+	font-style: normal;
 	color:#eee;
 	text-transform: uppercase;
 	display:flex;
@@ -239,6 +253,14 @@ header{
 	padding:5px 15px;
 	font-family:"lato", sans-serif;
 	font-weight: 300;
+	transition: 200ms all;
+	box-shadow: 0px 5px 15px 1px hsl(var(--hue), 50%, 52%);
+}
+#addword_btn:hover, #train_btn:hover{
+	filter:brightness(125%)
+}
+#addword_btn:active, #train_btn:active{
+	filter:brightness(75%)
 }
 @media (width > 650px) {
 	#search_input{

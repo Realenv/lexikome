@@ -23,10 +23,13 @@
 :root{
 	--hue:222
 }
-	html,
-	body {
-		width: 100%;
-		height: 100%;
-		background: hsl(var(--hue), 63%, 35%);
-	}
+body {
+	max-width: 100vw;
+	min-height: 100vh;
+	background: hsl(var(--hue), 63%, 35%);
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	justify-content: space-between;
+}
 </style>

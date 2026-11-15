@@ -1,0 +1,122 @@
+---
+
+---
+<div id="add_word">
+    <h2>Add a word</h2>
+    <div>
+        <div>
+            <label>word</label>
+            <input type="text"/>
+        </div>
+        <hr/>
+        <div>
+            <label>language</label>
+            <input type="text"/>
+        </div>
+        <hr/>
+        <div>
+            <label>Gemini key</label>
+            <input type="text"/>
+        </div>
+        <hr/>
+        <div>
+            <label>Google voice key</label>
+            <input type="text"/>
+        </div>
+        <div>
+            <button>submit</button>
+        </div>
+    </div>
+</div>
+<style>
+*{
+    padding:0px;
+    margin:0px;
+}
+h2{
+    text-align: center;
+    color: white;
+    font-family: "lato", sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-style: italic;
+    padding:5px 15px;
+    font-size: 15px;
+    color:hsl(var(--hue), 100%, 90%);
+    letter-spacing: 1px;
+}
+#add_word{
+    border-radius: 1px;
+    background-color: hsl(var(--hue), 100%, 1%);
+    max-width: 750px;
+    padding:21px 0px;
+    color:black;
+    flex-grow:1;
+    margin:4vw;
+    display:flex;
+    flex-direction: column;
+}
+#add_word > div{
+    display:flex;
+    flex-direction: column;
+    padding:15px;
+    align-items: center;
+    justify-content: center;
+    flex-grow:1;
+    gap: 11px;
+}
+hr{
+    width: min(60%, 355px);
+    border:none;
+    background-color: #222;
+    height:1px;
+    margin-top:7px;
+}
+#add_word > div > div{
+    display: flex;
+    flex-direction: column;
+    width: min(90%, 555px);
+}
+#add_word > div > div:last-child{
+    align-items: end;
+}
+#add_word button{
+	border-radius:2px;
+	border:none;
+    text-decoration: none;
+	font-style: normal;
+	color:#eee;
+    background:none;
+	text-transform: uppercase;
+	display:flex;
+	letter-spacing: -1px;
+	justify-content: center;
+	align-items: center;
+	padding:5px 15px;
+	font-family:"lato", sans-serif;
+	font-weight: 300;
+	transition: 200ms all;
+    background-color: hsl(var(--hue), 100%, 30%);
+}
+#add_word button:hover{
+    background-color: hsl(var(--hue), 100%, 30%);
+    filter:brightness(141%)
+}
+#add_word button:active{
+    background-color: hsl(var(--hue), 100%, 50%);
+    filter:brightness(200%);
+}
+#add_word > div > div > input{
+    background-color: hsl(var(--hue), 11%, 5%);
+    border:none;
+    padding: 11px 15px;
+    border-radius: 2px;
+}
+#add_word > div > div > label{
+    color:white;
+    padding: 5px;
+    font-family: "lato", sans-serif;
+    text-transform: capitalize;
+
+}
+</style>
