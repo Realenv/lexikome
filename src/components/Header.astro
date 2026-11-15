@@ -17,9 +17,9 @@ import Close from '../assets/close.svg';
 		</div>
 		<div style="position:relative; flex-grow:1;">
 			<div class="search">
-				<div id="close"><Close/></div>
+				<div id="close"><Close style={"filter:invert(1)"}/></div>
 				<input type="text" id="search_input"/>
-				<div id="search_btn"><Search /></div>
+				<div id="search_btn"><Search style={"filter:invert(1)"}/></div>
 			</div>
 		</div>
 		<div id="train_btn">
@@ -32,19 +32,19 @@ import Close from '../assets/close.svg';
 			<div class="choose_lang">
 				<div>
 					<label for="tr_lang"><TR width={18} class={"svg_lang"}/>tr</label>
-					<input type="checkbox" id="tr_lang" checked/>
+					<input type="checkbox" id="tr_lang" />
 				</div>
 				<div>
 					<label for="en_lang"><EN width={18} class={"svg_lang"}/>en</label>
-					<input type="checkbox" id="en_lang" checked/>
+					<input type="checkbox" id="en_lang" />
 				</div>
 				<div>
 					<label for="ar_lang"><AR width={18} class={"svg_lang"}/>ar</label>
-					<input type="checkbox" id="ar_lang" checked/>
+					<input type="checkbox" id="ar_lang" />
 				</div>
 				<div>
 					<label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
-					<input type="checkbox" id="ru_lang" checked/>
+					<input type="checkbox" id="ru_lang" />
 				</div>
 			</div>
 		</div>
@@ -65,6 +65,37 @@ if (search_btn && search_input && close){
 		search_input.classList.remove("user_search");
 	};
 }
+
+const en_lang = document.getElementById("en_lang")!;
+const tr_lang = document.getElementById("tr_lang")!;
+const ar_lang = document.getElementById("ar_lang")!;
+const ru_lang = document.getElementById("ru_lang")!;
+
+const matching: {[key: string]: HTMLInputElement} = {
+    "english": en_lang as HTMLInputElement,
+    "turkish": tr_lang as HTMLInputElement,
+    "arabic": ar_lang as HTMLInputElement,
+    "russian": ru_lang as HTMLInputElement
+}
+
+const url = new URL(window.location.href);
+
+for(const [key, value] of Object.entries(matching)){
+	if (url.searchParams.has(key)){
+		value.checked = url.searchParams.get(key) != "false";
+		console.log(url.searchParams.get(key) != "false");
+	} else{
+		value.checked = true;
+	}
+	value.onchange = ()=>{
+		url.searchParams.delete(key);
+		if (value.checked == false){
+			url.searchParams.append(key, "false");
+		}
+		console.log("url");
+		window.location.href = url.href;
+	}
+};
 </script>
 <style>
 *{
@@ -128,8 +159,8 @@ div:has(>.lexikome){
 #header{
 	display:flex;
 	flex-direction: column;
-	background: hsl(var(--hue), 63%, 40%);
-	box-shadow: 0px 0px 15px 9px hsl(var(--hue), 63%, 40%);
+	background: hsl(var(--hue), 63%, 46%);
+	box-shadow: 0px 0px 25px 25px hsl(var(--hue), 63%, 46%);
 }
 header{
 	padding: 15px 5vw 9px 5vw;
