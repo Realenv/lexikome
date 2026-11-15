@@ -29,7 +29,7 @@ parsed_data[0].map((definition) => {
 const max_num = parsed_data[1].length;
 ---
 
-<div id="container">
+<div class="container">
     <div>
         <h2><LanguageSvg width={18} height={18}/><span>{word}</span></h2>
         <div><Sound/></div>
@@ -51,11 +51,11 @@ const max_num = parsed_data[1].length;
                                         <h5>{example[1]}</h5>
                                 })
                             }
-                        </div></div>
+                        </div><hr/></div>
             })
         }
     </div>
-    <div id="conjugation">
+    <div class="conjugation">
         {
             parsed_data[1].map(([tense_name, conjugation]) => {
                 return <table>
@@ -80,49 +80,16 @@ const max_num = parsed_data[1].length;
         }
     </div>
     <div class="navigation_btns">
-        <button id="previous">previous tense</button>
-        <button id="next">next tense</button>
+        <button class="previous">previous tense</button>
+        <button class="next">next tense</button>
     </div>
 </div>
-<script>
-const previous = document.getElementById("previous");
-const next = document.getElementById("next");
-const conjugation = document.getElementById("conjugation");
-let count = 0;
-function show_tense(){
-    const children = conjugation?.children!;
-    for(let i = 0; i < children.length; i++){
-        if(i != count){
-            children[i].setAttribute("style", "display:none");
-        }
-        else{
-            children[i].setAttribute("style", "display:table");
-        }
-    }
-}
-if(previous && next && conjugation){
-    previous.onclick = () => {
-        count--;
-        if (count == -1){
-            count = conjugation.children.length - 1;
-        }
-        show_tense();
-    }
-    next.onclick = () => {
-        count++;
-        if (count == conjugation.children.length){
-            count = 0;
-        }
-        show_tense();
-    }
-}
-</script>
 <style>
 *{
 	padding:0px;
 	margin:0px;
 }
-#conjugation{
+.conjugation{
     display: flex;
     flex-direction: column;
 }
@@ -132,7 +99,7 @@ if(previous && next && conjugation){
     gap:5px;
     padding: 5px;
 }
-.navigation_btns button{
+.navigation_btns > button{
     border:none;
     padding: 5px 11px;
     color:white;
@@ -140,6 +107,7 @@ if(previous && next && conjugation){
     text-transform: uppercase;
     font-weight: 300;
     background-color: hsl(var(--hue), 50%, 25%);
+    transition: 100ms all;
 }
 .navigation_btns > button:first-child{
     padding: 5px 11px;
@@ -147,18 +115,18 @@ if(previous && next && conjugation){
     background:none;
     border: 1px solid hsl(var(--hue), 50%, 27%);
 }
-#conjugation > table tr > *:first-child{
+.conjugation > table tr > *:first-child{
     min-width: fit-content;
     width:105px;
 }
-#conjugation > table{
+.conjugation > table{
     display:none;
 }
-#conjugation > table:first-child{
+.conjugation > table:first-child{
     display:table;
     flex-grow:2;
 }
-#container{
+.container{
     display:flex;
     flex-direction:column;
     background-color: hsl(var(--hue), 50%, 15%);
@@ -170,81 +138,96 @@ if(previous && next && conjugation){
     box-sizing: border-box;
     box-shadow: 0px 5px 11px 11px hsla(var(--hue), 50%, 20%, 0.1);
 }
-#container > *:first-child{
+.container > *:first-child{
     display:flex;
     justify-content: space-between;
     align-items: center;
     padding: 2px 7px;
 }
-#container > *:first-child > h2{
+.container > *:first-child > h2{
     color:white;
     font-weight: 500;
     display:flex;
     align-items: center;
     gap:5px;
 }
-#container > *:first-child > div{
+.container > *:first-child > div{
     color:hsl(var(--hue), 60%, 60%);
 }
-#container > *:first-child > div:hover{
+.container > *:first-child > div:hover{
     color:hsl(var(--hue), 60%, 70%);
 }
-#container > *:first-child > div:active{
+.container > *:first-child > div:active{
     color:hsl(var(--hue), 90%, 70%);
 }
-#container > *:nth-child(2){
+.container > *:nth-child(2){
     font-weight: 300;
-    padding:0px 15px 0px 15px;
+    padding:15px;
     user-select: none;
 }
-#container > *:nth-child(3){
+.container > *:nth-child(3){
     padding:0px 15px 0px 15px;
     display:flex;
     flex-direction: column;
     max-width: fit-content;
 }
-#container > *:nth-child(3) > div, #container > *:nth-child(3) > div > div{
+.container > *:nth-child(3) > div, .container > *:nth-child(3) > div > div{
     display:flex;
     flex-direction: column;
-    max-width: fit-content;
 }
-#container > *:nth-child(3) > div > div{
+.container > *:nth-child(3) > div > div{
+    max-width: fit-content;
     padding:5px 15px;
 }
-#container > *:nth-child(3) > div > div > *:nth-child(even){
+hr{
+    margin: 2px 15px 5px 15px;
+    height:1px;
+    border:none;
+    background:gray;
+}
+.container > *:nth-child(3) > div:last-child > hr{
+    display:none;
+}
+.container > *:nth-child(3) > div > div > *:nth-child(even){
     text-align: end;
     font-style: italic;
     font-weight: 500;
     padding-bottom: 5px;
 }
-#container > *:nth-child(3) > div b{
+.container > *:nth-child(3) > div b{
     font-weight: 500;
     color: hsl(var(--hue), 60%, 50%);
 }
-#container > *:nth-child(3) > div > *:first-child{
+.container > *:nth-child(3) > div > *:first-child{
     font-weight: 300;
     color: hsl(var(--hue), 0%, 90%);
     padding: 0px 5px;
     user-select: none;
 }
-#container > *:nth-child(3) > div > *:first-child > i{
+.container > *:nth-child(3) > div > *:first-child > i{
     font-weight: 500;
     color: hsl(var(--hue), 100%, 60%);
     padding: 0px 5px;
 }
-#container table{
+.container table{
     text-align: center;
     margin-top: 7px;
 }
-#container th{
+.container th{
     background-color: hsl(var(--hue), 50%, 25%);
     padding:1px;
     font-weight: 300;
     user-select: none;
 }
-#container tbody th:not(:first-child){
+.container tbody th:not(:first-child){
     background-color: hsl(var(--hue), 50%, 12%);
     user-select: auto;
     font-weight: 500;
+}
+.navigation_btns > button:hover{
+    filter: brightness(200%)
+}
+.navigation_btns > button:active{
+    filter: brightness(50%)
 }
 </style>
