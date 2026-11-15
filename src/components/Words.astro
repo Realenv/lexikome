@@ -18,6 +18,46 @@ for(let i in result.results){
 })}
 </div>
 <script>
+const containers = document.getElementsByClassName("container");
+let count: {[key: number]: number} = {};
+function show_tense(p: number, children: HTMLCollection){
+    for(let i = 0; i < children.length; i++){
+            if(i != count[p]){
+                children[i].setAttribute("style", "display:none");
+            console.log("aaa")
+            }
+            
+            else{
+                children[i].setAttribute("style", "display:table");
+            }
+        }
+}
+for(let i = 0; i<containers.length; i++){
+    const container = containers[i];
+    let id_num = "getword-"+i;
+    container.setAttribute("id", id_num)
+    id_num = "#" + id_num;
+    const previous = document.querySelector(id_num+" .previous")!;
+    const next = document.querySelector(id_num+" .next")!;
+    const conjugation = document.querySelector(id_num+" .conjugation")!;
+    count[i] = 0;
+    if(previous && next && conjugation){
+        (previous as HTMLElement).onclick = () => {
+            count[i]--;
+            if (count[i] == -1){
+                count[i] = conjugation.children.length - 1;
+            }
+            show_tense(i, conjugation.children);
+        }
+        (next as HTMLElement).onclick = () => {
+            count[i]++;
+            if (count[i] == conjugation.children.length){
+                count[i] = 0;
+            }
+            show_tense(i, conjugation.children);
+        }
+    }
+}
 </script>
 <style>
 #container{
