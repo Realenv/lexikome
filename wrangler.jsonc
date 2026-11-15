@@ -5,7 +5,7 @@
 		"nodejs_compat"
 	],
 	"assets": {
-		"directory": "./dist",
+		"directory": "./dist"
 	},
 	"observability": {
 		"enabled": true
@@ -17,6 +17,13 @@
 			"binding": "lexikome_db",
 			"database_name": "lexikome-db",
 			"database_id": "48a132da-0441-43a6-9ba9-b414abc864e0",
+			"remote": true
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "SESSION",
+			"id": "eb2f887ebd2b420295cc758b12e82aac",
 			"remote": true
 		}
 	]
