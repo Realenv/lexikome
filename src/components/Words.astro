@@ -4,7 +4,20 @@ import Word from "./Word.astro";
 export const prerender = false;
 import { env } from 'cloudflare:workers';
 
-const result = await env.lexikome_db.prepare("SELECT * FROM words ORDER BY time_added ASC LIMIT 10 ").bind().all();
+const url = Astro.url.href;
+let sql = "";
+for(const [key, value] of Astro.url.searchParams.entries()){
+    if (value == "false"){
+        sql += "\"" + key + "\",";
+    }
+}
+if (sql == ""){
+    sql = "SELECT * FROM words ORDER BY time_added ASC LIMIT 10";
+} else{
+    sql = "SELECT * FROM words WHERE language not in (" + sql.slice(0, -1) + ") ORDER BY time_added ASC LIMIT 10";
+}
+console.log(sql);
+const result = await env.lexikome_db.prepare(sql).bind().all();
 let listOfWords = [];
 for(let i in result.results){
     const word = result.results[i];
