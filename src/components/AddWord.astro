@@ -1,37 +1,94 @@
 ---
-
 ---
-<div id="add_word">
-    <h2>Add a word</h2>
-    <div>
+<div>
+    <div id="add_word">
+        <h2>Add a word</h2>
+        <section class="wordToChoose">
+            <div>
+                <label for="word">words in the specified language</label>
+                <input id="word" type="text"/>
+                <p id="please_fill"></p>
+            </div>
+            <div>
+                <label for="language">language</label>
+                <select id="language">
+                    <option value="turkish">Turkish</option>
+                    <option value="english">English</option>
+                    <option value="arabic">Arabic</option>
+                    <option value="russian">Russian</option>
+                </select>
+            </div>
+        </section>
+        <p id="note">NOTE: You can type multiple words but you have to separate them with virgules, or point, or even any special character, but all of the typed words will remain as the same specified language</p>
         <div>
-            <label>word</label>
-            <input type="text"/>
-        </div>
-        <hr/>
-        <div>
-            <label>language</label>
-            <input type="text"/>
-        </div>
-        <hr/>
-        <div>
-            <label>Gemini key</label>
-            <input type="text"/>
-        </div>
-        <hr/>
-        <div>
-            <label>Google voice key</label>
-            <input type="text"/>
-        </div>
-        <div>
-            <button>submit</button>
+            <div>
+                <div>
+                    <p style="user-select: none;">You accept that this data will be sent and processed to third party services:</p>
+                    <label for="accept">I accept</label>
+                    <input id="accept" type="checkbox"/>
+                    <p id="please_accept"></p>
+                </div>
+                <button id="submit_btn">submit</button>
+            </div>
         </div>
     </div>
 </div>
+<script>
+function do_request(words: string, language: string){
+    console.log(words, language);
+}
+document.getElementById("submit_btn")!.onclick = ()=>{
+    if((document.getElementById("accept")! as HTMLInputElement).checked == false){
+        document.getElementById("please_accept")!.innerHTML = "You have to accept to continue";
+    } else{
+        document.getElementById("please_accept")!.innerHTML = "";
+    }
+    if((document.getElementById("word")! as HTMLInputElement).value == ""){
+        document.getElementById("please_fill")!.innerHTML = "You have to fill this input";
+    } else{
+        document.getElementById("please_fill")!.innerHTML = "";
+    }
+    if((document.getElementById("word")! as HTMLInputElement).value != "" && (document.getElementById("accept")! as HTMLInputElement).checked){
+        do_request((document.getElementById("word")! as HTMLInputElement).value, (document.getElementById("language")! as HTMLInputElement).value);
+    }
+}
+</script>
 <style>
 *{
     padding:0px;
     margin:0px;
+}
+div:has(#add_word){
+    display:flex;
+    justify-content: center;
+}
+#note{
+    color:gray;
+    text-align: center;
+    padding: 3px 15px;
+    font-family: "lato", sans-serif;
+    user-select: none;
+}
+.wordToChoose{
+    display: flex;
+    padding:0px 15px;
+    color:white;
+    flex-wrap:wrap;
+    gap:1px 15px;
+    justify-content: center;
+}
+.wordToChoose div:has(>label){
+    display:flex;
+    flex-direction: column;
+}
+.wordToChoose select{
+    height:35px;
+    outline:none;
+}
+.wordToChoose option{
+    background:hsl(var(--hue), 50%, 30%);
+    outline:none;
+    border:none;
 }
 h2{
     text-align: center;
@@ -48,22 +105,13 @@ h2{
 #add_word{
     border-radius: 1px;
     background-color: hsl(var(--hue), 100%, 1%);
-    max-width: 750px;
+    max-width: 450px;
     padding:21px 0px;
     color:black;
     flex-grow:1;
     margin:4vw;
     display:flex;
     flex-direction: column;
-}
-#add_word > div{
-    display:flex;
-    flex-direction: column;
-    padding:15px;
-    align-items: center;
-    justify-content: center;
-    flex-grow:1;
-    gap: 11px;
 }
 hr{
     width: min(60%, 355px);
@@ -72,15 +120,7 @@ hr{
     height:1px;
     margin-top:7px;
 }
-#add_word > div > div{
-    display: flex;
-    flex-direction: column;
-    width: min(90%, 555px);
-}
-#add_word > div > div:last-child{
-    align-items: end;
-}
-#add_word button{
+#add_word button, .wordToChoose select{
 	border-radius:2px;
 	border:none;
     text-decoration: none;
@@ -98,7 +138,7 @@ hr{
 	transition: 200ms all;
     background-color: hsl(var(--hue), 100%, 30%);
 }
-#add_word button:hover{
+#add_word button:hover, .wordToChoose select:hover{
     background-color: hsl(var(--hue), 100%, 30%);
     filter:brightness(141%)
 }
@@ -106,17 +146,55 @@ hr{
     background-color: hsl(var(--hue), 100%, 50%);
     filter:brightness(200%);
 }
-#add_word > div > div > input{
+#add_word input[type="text"]{
     background-color: hsl(var(--hue), 11%, 5%);
     border:none;
     padding: 11px 15px;
     border-radius: 2px;
 }
-#add_word > div > div > label{
+#add_word > section label{
     color:white;
     padding: 5px;
     font-family: "lato", sans-serif;
     text-transform: capitalize;
-
 }
+#add_word > div{
+    display: flex;
+    justify-content: center;
+    padding:15px;
+}
+#add_word > div > div > div{
+    display:flex;
+    flex-wrap:wrap;
+}
+#add_word > div > div > div p:not(#please_accept), #add_word > div label{
+    color:white;
+    padding: 5px;
+    font-size: 16px;
+    font-family: "lato", sans-serif;
+    font-variant: small-caps;
+}
+#add_word > div > div > div input{
+    margin: 5px 15px;
+}
+#add_word > div > div{
+    display:flex;
+    flex-direction: column;
+    gap:5px;
+    align-items: end;
+}
+#add_word input[type="text"]{
+    color:white;
+    outline:none;
+}
+#add_word input[type="text"]{
+    background-color: #151515;
+}
+#please_accept, #please_fill{
+    color:red;
+    font-family: "lato";
+    font-style: italic;
+    user-select:none;
+}
+
 </style>
