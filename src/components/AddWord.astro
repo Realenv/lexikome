@@ -12,6 +12,7 @@
             <div>
                 <label for="language">language</label>
                 <select id="language">
+                    <option value="french">French</option>
                     <option value="turkish">Turkish</option>
                     <option value="english">English</option>
                     <option value="arabic">Arabic</option>
@@ -19,7 +20,34 @@
                 </select>
             </div>
         </section>
-        <p id="note">NOTE: You can type multiple words but you have to separate them with virgules, or point, or even any special character, but all of the typed words will remain as the same specified language</p>
+        <hr/>
+        <section class="wordToChoose">
+            <div>
+                <label for="word_category">Category of the word</label>
+                <input id="word_category" type="text"/>
+                <p id="please_fill2"></p>
+            </div>
+            <div>
+                <label for="learner_language">Your language (used to explain the words)</label>
+                <select id="learner_language">
+                    <option value="arabic">Arabic</option>
+                    <option value="french">French</option>
+                    <option value="turkish">Turkish</option>
+                    <option value="english">English</option>
+                    <option value="russian">Russian</option>
+                </select>
+            </div>
+        </section>
+        <section class="wordToChoose">
+            <div>
+                <label for="genre">Genre of voice of the audio</label>
+                <select id="genre">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+        </section>
+        <p id="note">NOTE: You can type multiple words or categories but you have to separate them with virgules, or point, or even any special character, but all of the typed words will remain as the same specified language</p>
         <div>
             <div>
                 <div>
@@ -34,22 +62,51 @@
     </div>
 </div>
 <script>
-function do_request(words: string, language: string){
-    console.log(words, language);
+
+const resultElement = document.createElement("div");
+async function do_request(words: string, language: string, language_l: string, category: string, male: boolean){
+    const all_words = words.split(/[,+=/?@<>\]\[\\@#]+/);
+    fetch("/submit-word.json", {
+        method: "POST",
+        body: JSON.stringify({
+            words: all_words,
+            male: male,
+            lang:language,
+            translation_lang: language_l,
+            category:category
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    }).then(async (response)=>{
+        const result = await response.json();
+        document.body.classList.remove("loading");
+        resultElement.style.display = "block";
+    });
+    document.body.classList.add("loading");
 }
 document.getElementById("submit_btn")!.onclick = ()=>{
+    let ok = true;
     if((document.getElementById("accept")! as HTMLInputElement).checked == false){
+        ok = false;
         document.getElementById("please_accept")!.innerHTML = "You have to accept to continue";
     } else{
         document.getElementById("please_accept")!.innerHTML = "";
     }
     if((document.getElementById("word")! as HTMLInputElement).value == ""){
+        ok = false;
         document.getElementById("please_fill")!.innerHTML = "You have to fill this input";
     } else{
         document.getElementById("please_fill")!.innerHTML = "";
     }
-    if((document.getElementById("word")! as HTMLInputElement).value != "" && (document.getElementById("accept")! as HTMLInputElement).checked){
-        do_request((document.getElementById("word")! as HTMLInputElement).value, (document.getElementById("language")! as HTMLInputElement).value);
+    if((document.getElementById("word_category")! as HTMLInputElement).value == ""){
+        ok = false;
+        document.getElementById("please_fill2")!.innerHTML = "You have to fill this input";
+    } else{
+        document.getElementById("please_fill2")!.innerHTML = "";
+    }
+    if(ok){
+        do_request((document.getElementById("word")! as HTMLInputElement).value, (document.getElementById("language")! as HTMLInputElement).value, (document.getElementById("learner_language")! as HTMLInputElement).value, (document.getElementById("word_category")! as HTMLInputElement).value, (document.getElementById("genre")! as HTMLInputElement).value == "male");
     }
 }
 </script>
@@ -112,6 +169,7 @@ h2{
     margin:4vw;
     display:flex;
     flex-direction: column;
+    align-items: center;
 }
 hr{
     width: min(60%, 355px);
@@ -119,6 +177,7 @@ hr{
     background-color: #222;
     height:1px;
     margin-top:7px;
+    margin: 15px 25px;
 }
 #add_word button, .wordToChoose select{
 	border-radius:2px;
@@ -190,11 +249,10 @@ hr{
 #add_word input[type="text"]{
     background-color: #151515;
 }
-#please_accept, #please_fill{
+#please_accept, #please_fill, #please_fill2{
     color:red;
     font-family: "lato";
     font-style: italic;
     user-select:none;
 }
-
 </style>

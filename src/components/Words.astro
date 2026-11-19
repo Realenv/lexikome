@@ -1,25 +1,36 @@
 ---
+import { isLanguage, isLearnerLanguage } from "../types/types";
 import Word from "./Word.astro";
 import { env } from 'cloudflare:workers';
 
 const url = Astro.url.href;
-let sql = "";
+let sql_bind: string[] = [];
+let sql_bind_2: string[] = [];
 for(const [key, value] of Astro.url.searchParams.entries()){
-    if (value == "false"){
-        sql += "\"" + key + "\",";
+    if(value == "false"){
+        if (!(key in sql_bind) && isLanguage(key)){
+            sql_bind.push(key);
+        }
+        if (!(key in sql_bind_2) && key.length > 3 && isLearnerLanguage(key.slice(0, -2))){
+            sql_bind_2.push(key.slice(0, -2));
+        }
     }
+
 }
-if (sql == ""){
-    sql = "SELECT * FROM words ORDER BY time_added ASC LIMIT 10";
-} else{
-    sql = "SELECT * FROM words WHERE language not in (" + sql.slice(0, -1) + ") ORDER BY time_added ASC LIMIT 10";
+let sql = "SELECT * FROM words ";
+const sql_order = " ORDER BY time_added ASC LIMIT 10";
+if (sql_bind.length != 0 && sql_bind_2.length != 0){
+    sql += "WHERE language not in (" + Array(sql_bind.length).fill("?").join(", ") + ") AND translation_language not in (" + Array(sql_bind_2.length).fill("?").join(", ") + ")";
+} else if(sql_bind.length != 0 && sql_bind_2.length == 0){
+    sql += "WHERE language not in (" + Array(sql_bind.length).fill("?").join(", ") + ")";
+} else if(sql_bind.length == 0 && sql_bind_2.length != 0){
+    sql += "WHERE language not in (" + Array(sql_bind_2.length).fill("?").join(", ") + ")";
 }
-console.log(sql);
-const result = await env.lexikome_db.prepare(sql).bind().all();
+sql += sql_order;
+const result = await env.lexikome_db.prepare(sql).bind(...sql_bind.concat(sql_bind_2)).run();
 let listOfWords = [];
-for(let i in result.results){
-    const word = result.results[i];
-    listOfWords.push({word: word["word"], audio: word["audio"], context_aware_meanings: word["context_aware_meanings"], language: word["language"]});
+for(const word of result.results){
+    listOfWords.push({word: word["word"], learner_language: word["translation_language"], context_aware_meanings: word["context_aware_meanings"], language: word["language"]});
 }
 ---
 
@@ -35,7 +46,6 @@ function show_tense(p: number, children: HTMLCollection){
     for(let i = 0; i < children.length; i++){
             if(i != count[p]){
                 children[i].setAttribute("style", "display:none");
-            console.log("aaa")
             }
             
             else{

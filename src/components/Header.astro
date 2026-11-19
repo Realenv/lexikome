@@ -31,7 +31,7 @@ import Close from '../assets/close.svg';
 	</header>
 	<div class="subheader">
 		<div class="pick_lang">
-			<h2>Pick some languages:</h2>
+			<h2>Pick word's language:</h2>
 			<div class="choose_lang">
 				<div>
 					<label for="tr_lang"><TR width={18} class={"svg_lang"}/>tr</label>
@@ -48,6 +48,27 @@ import Close from '../assets/close.svg';
 				<div>
 					<label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
 					<input type="checkbox" id="ru_lang" />
+				</div>
+			</div>
+		</div>
+		<div class="pick_lang">
+			<h2>Pick your language:</h2>
+			<div class="choose_lang">
+				<div>
+					<label for="tr_lang_l"><TR width={18} class={"svg_lang"}/>tr</label>
+					<input type="checkbox" id="tr_lang_l" />
+				</div>
+				<div>
+					<label for="en_lang_l"><EN width={18} class={"svg_lang"}/>en</label>
+					<input type="checkbox" id="en_lang_l" />
+				</div>
+				<div>
+					<label for="ar_lang_l"><AR width={18} class={"svg_lang"}/>ar</label>
+					<input type="checkbox" id="ar_lang_l" />
+				</div>
+				<div>
+					<label for="ru_lang_l"><RU width={18} class={"svg_lang"}/>ru</label>
+					<input type="checkbox" id="ru_lang_l" />
 				</div>
 			</div>
 		</div>
@@ -73,6 +94,10 @@ const en_lang = document.getElementById("en_lang")!;
 const tr_lang = document.getElementById("tr_lang")!;
 const ar_lang = document.getElementById("ar_lang")!;
 const ru_lang = document.getElementById("ru_lang")!;
+const en_lang_l = document.getElementById("en_lang_l")!;
+const tr_lang_l = document.getElementById("tr_lang_l")!;
+const ar_lang_l = document.getElementById("ar_lang_l")!;
+const ru_lang_l = document.getElementById("ru_lang_l")!;
 
 const matching: {[key: string]: HTMLInputElement} = {
     "english": en_lang as HTMLInputElement,
@@ -81,12 +106,18 @@ const matching: {[key: string]: HTMLInputElement} = {
     "russian": ru_lang as HTMLInputElement
 }
 
+const matching_learner: {[key: string]: HTMLInputElement} = {
+    "english_l": en_lang_l as HTMLInputElement,
+    "turkish_l": tr_lang_l as HTMLInputElement,
+    "arabic_l": ar_lang_l as HTMLInputElement,
+    "russian_l": ru_lang_l as HTMLInputElement
+}
+
 const url = new URL(window.location.href);
 
 for(const [key, value] of Object.entries(matching)){
 	if (url.searchParams.has(key)){
 		value.checked = url.searchParams.get(key) != "false";
-		console.log(url.searchParams.get(key) != "false");
 	} else{
 		value.checked = true;
 	}
@@ -95,7 +126,20 @@ for(const [key, value] of Object.entries(matching)){
 		if (value.checked == false){
 			url.searchParams.append(key, "false");
 		}
-		console.log("url");
+		window.location.href = url.href;
+	}
+};
+for(const [key, value] of Object.entries(matching_learner)){
+	if (url.searchParams.has(key)){
+		value.checked = url.searchParams.get(key) != "false";
+	} else{
+		value.checked = true;
+	}
+	value.onchange = ()=>{
+		url.searchParams.delete(key);
+		if (value.checked == false){
+			url.searchParams.append(key, "false");
+		}
 		window.location.href = url.href;
 	}
 };
@@ -133,8 +177,7 @@ for(const [key, value] of Object.entries(matching)){
 	font-family:"lato", sans-serif;
 	font-size: 13px;
 	text-transform: uppercase;
-
-	color:black;
+	color:white;
 }
 .choose_lang{
 	display:flex;
@@ -177,7 +220,10 @@ header{
 }
 .subheader{
 	display:flex;
-	justify-content: space-around;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 5px 15px;
+	padding: 0px 15px;
 }
 .choose_lang div:has(input){
 	color: hsl(0, 0%, 80%);

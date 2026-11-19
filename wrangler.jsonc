@@ -44,5 +44,8 @@
 			"remote": true,
 			"preview_id": "cc8d93c0fb484c44956b2a64b3d5171b"
 		}
-	]
+	],
+	"secrets": {
+		"required": ["GEMINI_API_KEY", "SPEECHIFY_API_KEY", "GITHUB_API_KEY"]
+	}
 }

@@ -6,27 +6,45 @@ import TR from '../assets/tr.svg';
 import EN from '../assets/us.svg';
 import type { SvgComponent } from "astro/types";
 
+
 const matching: {[key: string]: SvgComponent & ImageMetadata} = {
     "english": EN,
     "turkish": TR,
     "arabic": AR,
+    "french": AR,
     "russian": RU
 }
-const {word, audio, context_aware_meanings, language} = Astro.props;
+const {word, context_aware_meanings, language} = Astro.props;
 const LanguageSvg = matching[language];
-const parsed_data: [
-  [string, string, string[], [string, string][]][],
-  [string, [string, string][]][]
-] = JSON.parse(context_aware_meanings);
+const parsed_data = JSON.parse(context_aware_meanings);
+const meanings: {
+        senses: string[],
+        raw_example: string,
+        pos_word_start_index_raw_example: number,
+        pos_word_end_index_raw_example: number,
+        translated_example: string,
+        pos_word_start_index_translated_example: number,
+        pos_word_end_index_translated_example: number,
+        sha: string
+    }[] = parsed_data.context_aware_meanings;
+let all_tenses: {
+    tense_name: string,
+    conjugation: {
+        pronoun: string,
+        conjugated_verb: string
+    }[]
+}[] | undefined = undefined;
+if(context_aware_meanings.conjugation){
+    all_tenses = context_aware_meanings.conjugation;
+}
 let all_possible_values: string[] = [];
-parsed_data[0].map((definition) => {
-    for(let z in definition[2]){
-        if (!(all_possible_values.includes(definition[2][z]))){
-            all_possible_values.push(definition[2][z]);
+for(const meaning of meanings){
+    for(const sense of meaning.senses){
+        if (!all_possible_values.includes(sense)){
+            all_possible_values.push(sense);
         }
     }
-});
-const max_num = parsed_data[1].length;
+}
 ---
 
 <div class="container">
@@ -37,52 +55,53 @@ const max_num = parsed_data[1].length;
     <h3>{all_possible_values.join(" - ")}</h3>
     <div>
         {
-            parsed_data[0].map((definition) => {
+            meanings.map((meaning) => {
                 let translated_equivalents = [];
-                for(let z in definition[2]){
-                    translated_equivalents.push(<i>{definition[2][z]}</i>)
+                for(let sense of meaning.senses){
+                    translated_equivalents.push(<i>{sense}</i>)
                     translated_equivalents.push(<>/</>)
                 }
                 translated_equivalents.pop();
-                return  <div><h4>{definition[0]} - {translated_equivalents}</h4><div>
-                            {
-                                definition[3].map((example)=>{
-                                    return <h5>{example[0]}</h5>
-                                        <h5>{example[1]}</h5>
-                                })
-                            }
+                return  <div><h4>{meaning.senses[0]} - {translated_equivalents}</h4><div>
+                            <h5>{meaning.raw_example}</h5>
+                            <h5>{meaning.translated_example}</h5>
                         </div><hr/></div>
             })
         }
     </div>
-    <div class="conjugation">
-        {
-            parsed_data[1].map(([tense_name, conjugation]) => {
-                return <table>
-                    <thead>
-                        <tr>
-                            <th>Pronons / tenses</th>
-                            <th>{tense_name}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            conjugation.map(([pronon, verb])=>{
-                                return <tr>
-                                    <th>{pronon}</th>
-                                    <th>{verb}</th>
-                                </tr>;
-                            })
-                        }
-                    </tbody>
-                </table>
-            })
-        }
-    </div>
-    <div class="navigation_btns">
-        <button class="previous">previous tense</button>
-        <button class="next">next tense</button>
-    </div>
+    {
+        all_tenses &&
+        <>
+            <div class="conjugation">
+                {
+                    all_tenses.map(({tense_name, conjugation}) => {
+                        return <table>
+                            <thead>
+                                <tr>
+                                    <th>Pronons / tenses</th>
+                                    <th>{tense_name}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                    conjugation.map(({pronoun, conjugated_verb})=>{
+                                        return <tr>
+                                            <th>{pronoun}</th>
+                                            <th>{conjugated_verb}</th>
+                                        </tr>;
+                                    })
+                                }
+                            </tbody>
+                        </table>
+                    })
+                }
+            </div>
+            <div class="navigation_btns">
+                <button class="previous">previous tense</button>
+                <button class="next">next tense</button>
+            </div>
+        </>
+    }
 </div>
 <style>
 *{
