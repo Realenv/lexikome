@@ -1,0 +1,14 @@
+---
+import Header from '../components/Header.astro';
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import AddWord from '../components/AddWord.astro';
+export const prerender = false;
+
+---
+
+<Layout>
+	<Header />
+    <AddWord/>
+	<Footer />
+</Layout>

@@ -7,44 +7,68 @@ import EN from '../assets/us.svg';
 import Close from '../assets/close.svg';
 ---
 
-<div id="container">
+<div id="header">
 	<header>
 		<div>
-			<div class="lexikome">
+			<a class="lexikome" href="/">
 				<span class="lexi">Lexi</span>
 				<span class="kome">Kome</span>
-			</div>
+			</a>
 		</div>
 		<div style="position:relative; flex-grow:1;">
 			<div class="search">
-				<div id="close"><Close/></div>
+				<div id="close"><Close style={"filter:invert(1)"}/></div>
 				<input type="text" id="search_input"/>
-				<div id="search_btn"><Search /></div>
+				<div id="search_btn"><Search style={"filter:invert(1)"}/></div>
 			</div>
 		</div>
-		<div id="train_btn">
+		<a href="/add-word" id="addword_btn">
+			Add word
+		</a>
+		<a href="/train" id="train_btn">
 			Train
-		</div>
+		</a>
 	</header>
 	<div class="subheader">
 		<div class="pick_lang">
-			<h2>Pick some languages:</h2>
+			<h2>Pick word's language:</h2>
 			<div class="choose_lang">
 				<div>
 					<label for="tr_lang"><TR width={18} class={"svg_lang"}/>tr</label>
-					<input type="checkbox" id="tr_lang" checked/>
+					<input type="checkbox" id="tr_lang" />
 				</div>
 				<div>
 					<label for="en_lang"><EN width={18} class={"svg_lang"}/>en</label>
-					<input type="checkbox" id="en_lang" checked/>
+					<input type="checkbox" id="en_lang" />
 				</div>
 				<div>
 					<label for="ar_lang"><AR width={18} class={"svg_lang"}/>ar</label>
-					<input type="checkbox" id="ar_lang" checked/>
+					<input type="checkbox" id="ar_lang" />
 				</div>
 				<div>
 					<label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
-					<input type="checkbox" id="ru_lang" checked/>
+					<input type="checkbox" id="ru_lang" />
+				</div>
+			</div>
+		</div>
+		<div class="pick_lang">
+			<h2>Pick your language:</h2>
+			<div class="choose_lang">
+				<div>
+					<label for="tr_lang_l"><TR width={18} class={"svg_lang"}/>tr</label>
+					<input type="checkbox" id="tr_lang_l" />
+				</div>
+				<div>
+					<label for="en_lang_l"><EN width={18} class={"svg_lang"}/>en</label>
+					<input type="checkbox" id="en_lang_l" />
+				</div>
+				<div>
+					<label for="ar_lang_l"><AR width={18} class={"svg_lang"}/>ar</label>
+					<input type="checkbox" id="ar_lang_l" />
+				</div>
+				<div>
+					<label for="ru_lang_l"><RU width={18} class={"svg_lang"}/>ru</label>
+					<input type="checkbox" id="ru_lang_l" />
 				</div>
 			</div>
 		</div>
@@ -65,6 +89,60 @@ if (search_btn && search_input && close){
 		search_input.classList.remove("user_search");
 	};
 }
+
+const en_lang = document.getElementById("en_lang")!;
+const tr_lang = document.getElementById("tr_lang")!;
+const ar_lang = document.getElementById("ar_lang")!;
+const ru_lang = document.getElementById("ru_lang")!;
+const en_lang_l = document.getElementById("en_lang_l")!;
+const tr_lang_l = document.getElementById("tr_lang_l")!;
+const ar_lang_l = document.getElementById("ar_lang_l")!;
+const ru_lang_l = document.getElementById("ru_lang_l")!;
+
+const matching: {[key: string]: HTMLInputElement} = {
+    "english": en_lang as HTMLInputElement,
+    "turkish": tr_lang as HTMLInputElement,
+    "arabic": ar_lang as HTMLInputElement,
+    "russian": ru_lang as HTMLInputElement
+}
+
+const matching_learner: {[key: string]: HTMLInputElement} = {
+    "english_l": en_lang_l as HTMLInputElement,
+    "turkish_l": tr_lang_l as HTMLInputElement,
+    "arabic_l": ar_lang_l as HTMLInputElement,
+    "russian_l": ru_lang_l as HTMLInputElement
+}
+
+const url = new URL(window.location.href);
+
+for(const [key, value] of Object.entries(matching)){
+	if (url.searchParams.has(key)){
+		value.checked = url.searchParams.get(key) != "false";
+	} else{
+		value.checked = true;
+	}
+	value.onchange = ()=>{
+		url.searchParams.delete(key);
+		if (value.checked == false){
+			url.searchParams.append(key, "false");
+		}
+		window.location.href = url.href;
+	}
+};
+for(const [key, value] of Object.entries(matching_learner)){
+	if (url.searchParams.has(key)){
+		value.checked = url.searchParams.get(key) != "false";
+	} else{
+		value.checked = true;
+	}
+	value.onchange = ()=>{
+		url.searchParams.delete(key);
+		if (value.checked == false){
+			url.searchParams.append(key, "false");
+		}
+		window.location.href = url.href;
+	}
+};
 </script>
 <style>
 *{
@@ -83,9 +161,6 @@ if (search_btn && search_input && close){
 	display:none;
 	color:white;
 }
-:root{
-	--hue:222
-}
 #close{
 	display:none;
 }
@@ -98,12 +173,11 @@ if (search_btn && search_input && close){
 	flex-direction:column;
 }
 .pick_lang > h2{
-	font-weight: 100;
-	font-family: "Cantarell", sans-serif;
+	font-weight: 300;
+	font-family:"lato", sans-serif;
 	font-size: 13px;
 	text-transform: uppercase;
-
-	color:black;
+	color:white;
 }
 .choose_lang{
 	display:flex;
@@ -115,9 +189,12 @@ if (search_btn && search_input && close){
 	text-shadow: hsl(var(--hue), 100%, 10%) 0px -5px 15px;
 }
 .lexikome{
-	font-family:"Cantarell", sans-serif;
+	font-family:"lato", sans-serif;
 	font-weight: 900;
-	font-size: 19px;
+	font-size: 25px;
+	display:block;
+	text-decoration: none;
+	font-style: italic;
 	transition:1s all;
 }
 .lexikome:hover{
@@ -128,22 +205,25 @@ div:has(>.lexikome){
 	justify-content: center;
 	align-items: center;
 }
-#container{
+#header{
 	display:flex;
 	flex-direction: column;
-	background: hsl(var(--hue), 63%, 40%);
-	box-shadow: 0px 0px 15px 9px hsl(var(--hue), 63%, 40%);
+	background: hsl(var(--hue), 63%, 46%);
+	box-shadow: 0px 0px 25px 25px hsl(var(--hue), 63%, 46%);
 }
 header{
-	padding: 15px 15px 9px 15px;
+	padding: 15px 5vw 9px 5vw;
 	display:flex;
-	gap:25px;
-	justify-content: space-between;
-	align-items:center;
+	flex-wrap:wrap;
+	gap:5px 25px;
+	justify-content:end;
 }
 .subheader{
 	display:flex;
-	justify-content: space-around;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 5px 15px;
+	padding: 0px 15px;
 }
 .choose_lang div:has(input){
 	color: hsl(0, 0%, 80%);
@@ -171,7 +251,8 @@ header{
 	font-size: 15px;
 	text-transform: uppercase;
 	user-select: none;
-	font-family: "Cantarell";
+	font-family:"lato", sans-serif;
+	font-weight: 900;
 	display:flex;
 	gap:2px;
 }
@@ -200,9 +281,15 @@ header{
 	align-items: center;
 }
 #train_btn{
-	border-radius:2px;
 	background:hsl(var(--hue), 100%, 70%);
-	box-shadow: 0px 5px 15px 1px hsl(var(--hue), 50%, 52%);
+}
+#addword_btn{
+	border:1px solid hsl(var(--hue), 100%, 70%);
+}
+#addword_btn, #train_btn{
+	border-radius:2px;
+	text-decoration: none;
+	font-style: normal;
 	color:#eee;
 	text-transform: uppercase;
 	display:flex;
@@ -210,14 +297,23 @@ header{
 	justify-content: center;
 	align-items: center;
 	padding:5px 15px;
-	font-family:"Cantarell", sans-serif;
+	font-family:"lato", sans-serif;
+	font-weight: 300;
+	transition: 200ms all;
+	box-shadow: 0px 5px 15px 1px hsl(var(--hue), 50%, 52%);
+}
+#addword_btn:hover, #train_btn:hover{
+	filter:brightness(125%)
+}
+#addword_btn:active, #train_btn:active{
+	filter:brightness(75%)
 }
 @media (width > 650px) {
 	#search_input{
 		display: block;
 	}
 	header{
-		justify-content: center;
+		padding: 15px 7vw 9px 7vw;
 	}
 	.search{
 		padding: 0px 25px;

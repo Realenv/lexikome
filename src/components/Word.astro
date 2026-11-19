@@ -1,0 +1,252 @@
+---
+import Sound from "../assets/sound.svg"
+import RU from '../assets/ru.svg';
+import AR from '../assets/ar.svg';
+import TR from '../assets/tr.svg';
+import EN from '../assets/us.svg';
+import type { SvgComponent } from "astro/types";
+
+
+const matching: {[key: string]: SvgComponent & ImageMetadata} = {
+    "english": EN,
+    "turkish": TR,
+    "arabic": AR,
+    "french": AR,
+    "russian": RU
+}
+const {word, context_aware_meanings, language} = Astro.props;
+const LanguageSvg = matching[language];
+const parsed_data = JSON.parse(context_aware_meanings);
+const meanings: {
+        senses: string[],
+        raw_example: string,
+        pos_word_start_index_raw_example: number,
+        pos_word_end_index_raw_example: number,
+        translated_example: string,
+        pos_word_start_index_translated_example: number,
+        pos_word_end_index_translated_example: number,
+        sha: string
+    }[] = parsed_data.context_aware_meanings;
+let all_tenses: {
+    tense_name: string,
+    conjugation: {
+        pronoun: string,
+        conjugated_verb: string
+    }[]
+}[] | undefined = undefined;
+if(context_aware_meanings.conjugation){
+    all_tenses = context_aware_meanings.conjugation;
+}
+let all_possible_values: string[] = [];
+for(const meaning of meanings){
+    for(const sense of meaning.senses){
+        if (!all_possible_values.includes(sense)){
+            all_possible_values.push(sense);
+        }
+    }
+}
+---
+
+<div class="container">
+    <div>
+        <h2><LanguageSvg width={18} height={18}/><span>{word}</span></h2>
+        <div><Sound/></div>
+    </div>
+    <h3>{all_possible_values.join(" - ")}</h3>
+    <div>
+        {
+            meanings.map((meaning) => {
+                let translated_equivalents = [];
+                for(let sense of meaning.senses){
+                    translated_equivalents.push(<i>{sense}</i>)
+                    translated_equivalents.push(<>/</>)
+                }
+                translated_equivalents.pop();
+                return  <div><h4>{meaning.senses[0]} - {translated_equivalents}</h4><div>
+                            <h5>{meaning.raw_example}</h5>
+                            <h5>{meaning.translated_example}</h5>
+                        </div><hr/></div>
+            })
+        }
+    </div>
+    {
+        all_tenses &&
+        <>
+            <div class="conjugation">
+                {
+                    all_tenses.map(({tense_name, conjugation}) => {
+                        return <table>
+                            <thead>
+                                <tr>
+                                    <th>Pronons / tenses</th>
+                                    <th>{tense_name}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                    conjugation.map(({pronoun, conjugated_verb})=>{
+                                        return <tr>
+                                            <th>{pronoun}</th>
+                                            <th>{conjugated_verb}</th>
+                                        </tr>;
+                                    })
+                                }
+                            </tbody>
+                        </table>
+                    })
+                }
+            </div>
+            <div class="navigation_btns">
+                <button class="previous">previous tense</button>
+                <button class="next">next tense</button>
+            </div>
+        </>
+    }
+</div>
+<style>
+*{
+	padding:0px;
+	margin:0px;
+}
+.conjugation{
+    display: flex;
+    flex-direction: column;
+}
+.navigation_btns{
+    display:flex;
+    justify-content: flex-end;
+    gap:5px;
+    padding: 5px;
+}
+.navigation_btns > button{
+    border:none;
+    padding: 5px 11px;
+    color:white;
+    font-family: "lato", sans-serif;
+    text-transform: uppercase;
+    font-weight: 300;
+    background-color: hsl(var(--hue), 50%, 25%);
+    transition: 100ms all;
+}
+.navigation_btns > button:first-child{
+    padding: 5px 11px;
+    color:white;
+    background:none;
+    border: 1px solid hsl(var(--hue), 50%, 27%);
+}
+.conjugation > table tr > *:first-child{
+    min-width: fit-content;
+    width:105px;
+}
+.conjugation > table{
+    display:none;
+}
+.conjugation > table:first-child{
+    display:table;
+    flex-grow:2;
+}
+.container{
+    display:flex;
+    flex-direction:column;
+    background-color: hsl(var(--hue), 50%, 15%);
+    color: #ddd;
+    max-width: 455px;
+    margin: 15px;
+	font-family:"lato", sans-serif;
+    padding:15px;
+    box-sizing: border-box;
+    box-shadow: 0px 5px 11px 11px hsla(var(--hue), 50%, 20%, 0.1);
+}
+.container > *:first-child{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 7px;
+}
+.container > *:first-child > h2{
+    color:white;
+    font-weight: 500;
+    display:flex;
+    align-items: center;
+    gap:5px;
+}
+.container > *:first-child > div{
+    color:hsl(var(--hue), 60%, 60%);
+}
+.container > *:first-child > div:hover{
+    color:hsl(var(--hue), 60%, 70%);
+}
+.container > *:first-child > div:active{
+    color:hsl(var(--hue), 90%, 70%);
+}
+.container > *:nth-child(2){
+    font-weight: 300;
+    padding:15px;
+    user-select: none;
+}
+.container > *:nth-child(3){
+    padding:0px 15px 0px 15px;
+    display:flex;
+    flex-direction: column;
+    max-width: fit-content;
+}
+.container > *:nth-child(3) > div, .container > *:nth-child(3) > div > div{
+    display:flex;
+    flex-direction: column;
+}
+.container > *:nth-child(3) > div > div{
+    max-width: fit-content;
+    padding:5px 15px;
+}
+hr{
+    margin: 2px 15px 5px 15px;
+    height:1px;
+    border:none;
+    background:gray;
+}
+.container > *:nth-child(3) > div:last-child > hr{
+    display:none;
+}
+.container > *:nth-child(3) > div > div > *:nth-child(even){
+    text-align: end;
+    font-style: italic;
+    font-weight: 500;
+    padding-bottom: 5px;
+}
+.container > *:nth-child(3) > div b{
+    font-weight: 500;
+    color: hsl(var(--hue), 60%, 50%);
+}
+.container > *:nth-child(3) > div > *:first-child{
+    font-weight: 300;
+    color: hsl(var(--hue), 0%, 90%);
+    padding: 0px 5px;
+    user-select: none;
+}
+.container > *:nth-child(3) > div > *:first-child > i{
+    font-weight: 500;
+    color: hsl(var(--hue), 100%, 60%);
+    padding: 0px 5px;
+}
+.container table{
+    text-align: center;
+    margin-top: 7px;
+}
+.container th{
+    background-color: hsl(var(--hue), 50%, 25%);
+    padding:1px;
+    font-weight: 300;
+    user-select: none;
+}
+.container tbody th:not(:first-child){
+    background-color: hsl(var(--hue), 50%, 12%);
+    user-select: auto;
+    font-weight: 500;
+}
+.navigation_btns > button:hover{
+    filter: brightness(200%)
+}
+.navigation_btns > button:active{
+    filter: brightness(50%)
+}
+</style>

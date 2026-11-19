@@ -1,0 +1,90 @@
+---
+import { isLanguage, isLearnerLanguage } from "../types/types";
+import Word from "./Word.astro";
+import { env } from 'cloudflare:workers';
+
+const url = Astro.url.href;
+let sql_bind: string[] = [];
+let sql_bind_2: string[] = [];
+for(const [key, value] of Astro.url.searchParams.entries()){
+    if(value == "false"){
+        if (!(key in sql_bind) && isLanguage(key)){
+            sql_bind.push(key);
+        }
+        if (!(key in sql_bind_2) && key.length > 3 && isLearnerLanguage(key.slice(0, -2))){
+            sql_bind_2.push(key.slice(0, -2));
+        }
+    }
+
+}
+let sql = "SELECT * FROM words ";
+const sql_order = " ORDER BY time_added ASC LIMIT 10";
+if (sql_bind.length != 0 && sql_bind_2.length != 0){
+    sql += "WHERE language not in (" + Array(sql_bind.length).fill("?").join(", ") + ") AND translation_language not in (" + Array(sql_bind_2.length).fill("?").join(", ") + ")";
+} else if(sql_bind.length != 0 && sql_bind_2.length == 0){
+    sql += "WHERE language not in (" + Array(sql_bind.length).fill("?").join(", ") + ")";
+} else if(sql_bind.length == 0 && sql_bind_2.length != 0){
+    sql += "WHERE language not in (" + Array(sql_bind_2.length).fill("?").join(", ") + ")";
+}
+sql += sql_order;
+const result = await env.lexikome_db.prepare(sql).bind(...sql_bind.concat(sql_bind_2)).run();
+let listOfWords = [];
+for(const word of result.results){
+    listOfWords.push({word: word["word"], learner_language: word["translation_language"], context_aware_meanings: word["context_aware_meanings"], language: word["language"]});
+}
+---
+
+<div id="container">
+{listOfWords.map((word_data)=>{
+    return <Word {...word_data}/>
+})}
+</div>
+<script>
+const containers = document.getElementsByClassName("container");
+let count: {[key: number]: number} = {};
+function show_tense(p: number, children: HTMLCollection){
+    for(let i = 0; i < children.length; i++){
+            if(i != count[p]){
+                children[i].setAttribute("style", "display:none");
+            }
+            
+            else{
+                children[i].setAttribute("style", "display:table");
+            }
+        }
+}
+for(let i = 0; i<containers.length; i++){
+    const container = containers[i];
+    let id_num = "getword-"+i;
+    container.setAttribute("id", id_num)
+    id_num = "#" + id_num;
+    const previous = document.querySelector(id_num+" .previous")!;
+    const next = document.querySelector(id_num+" .next")!;
+    const conjugation = document.querySelector(id_num+" .conjugation")!;
+    count[i] = 0;
+    if(previous && next && conjugation){
+        (previous as HTMLElement).onclick = () => {
+            count[i]--;
+            if (count[i] == -1){
+                count[i] = conjugation.children.length - 1;
+            }
+            show_tense(i, conjugation.children);
+        }
+        (next as HTMLElement).onclick = () => {
+            count[i]++;
+            if (count[i] == conjugation.children.length){
+                count[i] = 0;
+            }
+            show_tense(i, conjugation.children);
+        }
+    }
+}
+</script>
+<style>
+#container{
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-grow:1;
+}
+</style>
