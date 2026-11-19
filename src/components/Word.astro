@@ -4,6 +4,7 @@ import RU from '../assets/ru.svg';
 import AR from '../assets/ar.svg';
 import TR from '../assets/tr.svg';
 import EN from '../assets/us.svg';
+import FR from '../assets/fr.svg';
 import type { SvgComponent } from "astro/types";
 
 
@@ -11,7 +12,7 @@ const matching: {[key: string]: SvgComponent & ImageMetadata} = {
     "english": EN,
     "turkish": TR,
     "arabic": AR,
-    "french": AR,
+    "french": FR,
     "russian": RU
 }
 const {word, context_aware_meanings, language} = Astro.props;
