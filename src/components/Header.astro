@@ -4,6 +4,7 @@ import RU from '../assets/ru.svg';
 import AR from '../assets/ar.svg';
 import TR from '../assets/tr.svg';
 import EN from '../assets/us.svg';
+import FR from '../assets/fr.svg';
 import Close from '../assets/close.svg';
 ---
 
@@ -49,6 +50,10 @@ import Close from '../assets/close.svg';
 					<label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
 					<input type="checkbox" id="ru_lang" />
 				</div>
+				<div>
+					<label for="fr_lang"><FR width={18} class={"svg_lang"}/>ru</label>
+					<input type="checkbox" id="fr_lang" />
+				</div>
 			</div>
 		</div>
 		<div class="pick_lang">
@@ -69,6 +74,10 @@ import Close from '../assets/close.svg';
 				<div>
 					<label for="ru_lang_l"><RU width={18} class={"svg_lang"}/>ru</label>
 					<input type="checkbox" id="ru_lang_l" />
+				</div>
+				<div>
+					<label for="fr_lang_l"><FR width={18} class={"svg_lang"}/>ru</label>
+					<input type="checkbox" id="fr_lang_l" />
 				</div>
 			</div>
 		</div>
@@ -94,23 +103,27 @@ const en_lang = document.getElementById("en_lang")!;
 const tr_lang = document.getElementById("tr_lang")!;
 const ar_lang = document.getElementById("ar_lang")!;
 const ru_lang = document.getElementById("ru_lang")!;
+const fr_lang = document.getElementById("fr_lang")!;
 const en_lang_l = document.getElementById("en_lang_l")!;
 const tr_lang_l = document.getElementById("tr_lang_l")!;
 const ar_lang_l = document.getElementById("ar_lang_l")!;
 const ru_lang_l = document.getElementById("ru_lang_l")!;
+const fr_lang_l = document.getElementById("fr_lang_l")!;
 
 const matching: {[key: string]: HTMLInputElement} = {
     "english": en_lang as HTMLInputElement,
     "turkish": tr_lang as HTMLInputElement,
     "arabic": ar_lang as HTMLInputElement,
-    "russian": ru_lang as HTMLInputElement
+    "russian": ru_lang as HTMLInputElement,
+    "french": fr_lang as HTMLInputElement
 }
 
 const matching_learner: {[key: string]: HTMLInputElement} = {
     "english_l": en_lang_l as HTMLInputElement,
     "turkish_l": tr_lang_l as HTMLInputElement,
     "arabic_l": ar_lang_l as HTMLInputElement,
-    "russian_l": ru_lang_l as HTMLInputElement
+    "russian_l": ru_lang_l as HTMLInputElement,
+    "french_l": fr_lang_l as HTMLInputElement
 }
 
 const url = new URL(window.location.href);
