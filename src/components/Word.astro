@@ -35,8 +35,8 @@ let all_tenses: {
         conjugated_verb: string
     }[]
 }[] | undefined = undefined;
-if(context_aware_meanings.conjugation){
-    all_tenses = context_aware_meanings.conjugation;
+if(parsed_data.conjugation){
+    all_tenses = parsed_data.conjugation;
 }
 let all_possible_values: string[] = [];
 for(const meaning of meanings){
