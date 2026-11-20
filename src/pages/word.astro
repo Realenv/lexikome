@@ -1,33 +1,15 @@
 ---
 import Word from "../components/Word.astro";
-const params = Astro.url.searchParams.entries().toArray();
-let word = null;
-let context_aware_meanings = null;
-let language = null;
-let category = null;
-for (const [key, value] of params){
-    if(key == "word"){
-        word = value;
-    } else if(key == "context_aware_meanings"){
-        context_aware_meanings = value;
-    } else if(key == "language"){
-        language = value;
-    } else if(key == "category"){
-        category = value;
-    }
-}
-let show_word = true;
-if (word == null ||
-    context_aware_meanings == null ||
-    language == null ||
-    category == null){
-    show_word = false;
-}
+const {word, learner_language, context_aware_meanings, language, category}: {
+    word: string,
+    learner_language: string,
+    context_aware_meanings: string,
+    language: string,
+    category: string
+} = await Astro.request.json();
 export const partial = true;
 ---
 
 <>
-{
-    show_word && <Word word={word} context_aware_meanings={context_aware_meanings} language={language} category={category}/>
-}
+<Word word={word} context_aware_meanings={context_aware_meanings} language={language} category={category}/>
 </>
