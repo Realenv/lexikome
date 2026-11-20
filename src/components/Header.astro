@@ -86,6 +86,7 @@ import Close from '../assets/close.svg';
 	</div>}
 </div>
 <script>
+import { reload_words } from "../scripts/reload_words";
 const search_btn = document.getElementById("search_btn");
 const close = document.getElementById("close");
 const search_input = document.getElementById("search_input");
@@ -97,6 +98,7 @@ if (search_btn && search_input && close){
 		search_input.classList.remove("user_search");
 	};
 }
+
 
 const en_lang = document.getElementById("en_lang")!;
 const tr_lang = document.getElementById("tr_lang")!;
@@ -138,7 +140,11 @@ for(const [key, value] of Object.entries(matching)){
 		if (value.checked == false){
 			url.searchParams.append(key, "false");
 		}
-		window.location.href = url.href;
+		let url_to_send = new URL("/words.json", window.location.origin);
+		url.searchParams.forEach((value, key)=>{
+			url_to_send.searchParams.set(key, value);
+		});
+		reload_words(url_to_send);
 	}
 };
 for(const [key, value] of Object.entries(matching_learner)){
@@ -152,7 +158,11 @@ for(const [key, value] of Object.entries(matching_learner)){
 		if (value.checked == false){
 			url.searchParams.append(key, "false");
 		}
-		window.location.href = url.href;
+		let url_to_send = new URL("/words.json", window.location.origin);
+		url.searchParams.forEach((value, key)=>{
+			url_to_send.searchParams.set(key, value);
+		});
+		reload_words(url_to_send);
 	}
 };
 </script>

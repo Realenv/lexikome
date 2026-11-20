@@ -1,6 +1,7 @@
 ---
 ---
 <div>
+    <div class="loadingDiv"><div></div><span id="report"></span></div>
     <div id="add_word">
         <h2>Add a word</h2>
         <section class="wordToChoose">
@@ -63,7 +64,6 @@
 </div>
 <script>
 
-const resultElement = document.createElement("div");
 async function do_request(words: string, language: string, language_l: string, category: string, male: boolean){
     const all_words = words.split(/[,+=/?@<>\]\[\\@#]+/);
     fetch("/submit-word.json", {
@@ -79,11 +79,18 @@ async function do_request(words: string, language: string, language_l: string, c
             "Content-type": "application/json; charset=UTF-8"
         }
     }).then(async (response)=>{
-        const result = await response.json();
-        document.body.classList.remove("loading");
-        resultElement.style.display = "block";
+        const result: { message: string,
+                        error: boolean,
+                        error_source: string} = await response.json();
+        document.getElementById("add_word")!.classList.remove("isLoading");
+        if(result.error){
+            document.getElementById("add_word")!.classList.add("isFinish");
+            document.getElementById("report")!.innerHTML = result.message;
+            setTimeout(()=>{window.location.assign("/")}, 5000);
+        }
     });
-    document.body.classList.add("loading");
+    document.getElementById("report")!.innerHTML = "Generating the flashcard, please wait";
+    document.getElementById("add_word")!.classList.add("isLoading");
 }
 document.getElementById("submit_btn")!.onclick = ()=>{
     let ok = true;
@@ -158,6 +165,37 @@ h2{
     font-size: 15px;
     color:hsl(var(--hue), 100%, 90%);
     letter-spacing: 1px;
+}
+@keyframes loadingAnimation {
+    0%{
+        rotate: 0deg;
+        filter: brightness(100%) contrast(1);
+    }
+    25%{
+        filter: brightness(200%) contrast(3);
+    }
+    50%{
+        rotate: 100deg;
+        filter: brightness(50%) contrast(0.5);
+    }
+    75%{
+        filter: brightness(200%) contrast(2);
+    }
+    100%{
+        rotate: 360deg;
+        filter: brightness(100%) contrast(1);
+    }
+}
+.loadingDiv div{
+    height:55px;
+    width:55px;
+    border-radius: 100%;
+    border: 5px solid #0000;
+    border-bottom: 5px solid hsl(var(--hue), 100%, 34%);
+    border-left: 5px solid hsl(var(--hue), 100%, 24%);
+    border-top: 5px solid hsl(var(--hue), 100%, 14%);
+    border-right: 5px solid hsl(var(--hue), 100%, 5%);
+    animation:loadingAnimation 2s infinite;
 }
 #add_word{
     border-radius: 1px;
@@ -254,5 +292,40 @@ hr{
     font-family: "lato";
     font-style: italic;
     user-select:none;
+}
+.loadingDiv{
+    position:fixed;
+    left:50%;
+    top:50%;
+    translate: -50% -50%;
+    z-index: 3;
+    background-color: #000;
+    border-radius: 2px;
+    display:none;
+    justify-content: center;
+    gap:15px;
+    color:hsl(var(--hue), 100%, 50%);
+    font-family: "lato";
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-wrap: wrap;
+    align-items: center;
+    padding:25px;
+}
+.isLoading{
+    filter: blur(5);
+}
+div:has(.isLoading) .loadingDiv, div:has(.isFinish) .loadingDiv{
+    display:flex;
+}
+div:has(.isFinish) .loadingDiv div{
+    display:none;
+}
+div:has(.isFinish) .loadingDiv{
+    color:red;
+    letter-spacing: 1px;
+    font-size:18px;
+    font-weight: 600;
 }
 </style>
