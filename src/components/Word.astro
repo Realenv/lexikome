@@ -15,7 +15,7 @@ const matching: {[key: string]: SvgComponent & ImageMetadata} = {
     "french": FR,
     "russian": RU
 }
-const {word, context_aware_meanings, language} = Astro.props;
+const {word, context_aware_meanings, language, category} = Astro.props;
 const LanguageSvg = matching[language];
 const parsed_data = JSON.parse(context_aware_meanings);
 const meanings: {
@@ -50,8 +50,8 @@ for(const meaning of meanings){
 
 <div class="container">
     <div>
-        <h2><LanguageSvg width={18} height={18}/><span>{word}</span></h2>
-        <div><Sound/></div>
+        <h2><LanguageSvg width={18} height={18}/>{word}<span>{category}</span></h2>
+        <div onclick={"play_audio('"+parsed_data.sha+"')"}><Sound/></div>
     </div>
     <h3>{all_possible_values.join(" - ")}</h3>
     <div>
@@ -64,8 +64,51 @@ for(const meaning of meanings){
                 }
                 translated_equivalents.pop();
                 return  <div><h4>{meaning.senses[0]} - {translated_equivalents}</h4><div>
-                            <h5>{meaning.raw_example}</h5>
-                            <h5>{meaning.translated_example}</h5>
+                            <div>
+                                <h5>
+                                    {
+                                    meaning.raw_example.slice(
+                                        0,
+                                        meaning.pos_word_start_index_raw_example
+                                    )
+                                    }
+                                    <span class="join_word">
+                                    {
+                                    meaning.raw_example.slice(
+                                        meaning.pos_word_start_index_raw_example,
+                                        meaning.pos_word_end_index_raw_example
+                                    )
+                                    }
+                                    </span>
+                                    {
+                                    meaning.raw_example.slice(
+                                        meaning.pos_word_end_index_raw_example
+                                    )
+                                    }
+                                </h5>
+                                <div onclick={"play_audio('"+meaning.sha+"')"}><Sound height={19}/></div>
+                            </div>
+                            <h5>
+                                {
+                                meaning.translated_example.slice(
+                                    0,
+                                    meaning.pos_word_start_index_translated_example
+                                )
+                                }
+                                <span class="join_word">
+                                {
+                                meaning.translated_example.slice(
+                                    meaning.pos_word_start_index_translated_example,
+                                    meaning.pos_word_end_index_translated_example
+                                )
+                                }
+                                </span>
+                                {
+                                meaning.translated_example.slice(
+                                    meaning.pos_word_end_index_translated_example
+                                )
+                                }
+                            </h5>
                         </div><hr/></div>
             })
         }
@@ -108,6 +151,9 @@ for(const meaning of meanings){
 *{
 	padding:0px;
 	margin:0px;
+}
+.join_word{
+    color:hsl(200, 100%, 45%);
 }
 .conjugation{
     display: flex;
@@ -171,13 +217,22 @@ for(const meaning of meanings){
     align-items: center;
     gap:5px;
 }
-.container > *:first-child > div{
+.container > *:first-child > h2 > span{
+    border:1px solid #5555;
+    background: #2222;
+    font-size: 15px;
+    color:#9999;
+    user-select: none;
+    padding:3px 7px;
+    border-radius: 15px;
+}
+.container > *:first-child > div, .container > *:nth-child(3) > div > div > div > div{
     color:hsl(var(--hue), 60%, 60%);
 }
-.container > *:first-child > div:hover{
+.container > *:first-child > div:hover, .container > *:nth-child(3) > div > div > div > div:hover{
     color:hsl(var(--hue), 60%, 70%);
 }
-.container > *:first-child > div:active{
+.container > *:first-child > div:active, .container > *:nth-child(3) > div > div > div > div:active{
     color:hsl(var(--hue), 90%, 70%);
 }
 .container > *:nth-child(2){
@@ -208,11 +263,17 @@ hr{
 .container > *:nth-child(3) > div:last-child > hr{
     display:none;
 }
-.container > *:nth-child(3) > div > div > *:nth-child(even){
+.container > *:nth-child(3) > div > div > *:last-child{
     text-align: end;
     font-style: italic;
     font-weight: 500;
     padding-bottom: 5px;
+}
+.container > *:nth-child(3) > div > div > div{
+    display:flex;
+    justify-content: start;
+    align-items: center;
+    gap:2px 7px;
 }
 .container > *:nth-child(3) > div b{
     font-weight: 500;

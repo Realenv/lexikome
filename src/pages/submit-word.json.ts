@@ -139,8 +139,9 @@ function getMeanings(word: string[], lang: string, model: string, translation_la
     "\nall of this respecting the laws of the json output, the translations are in learner's language, learner's language is "+translation_lang+
     "\nthe conjugation part of the output is in "+lang+
     ",\ngive all the possible meanings of the word,"+
-    "\ngive all the possible tenses and pronouns in the conjugation section, take care about the word's language's specifications"+
-    "\nwhen you give example vary your words, and give the start index of the word and the end index of the word's delimitation in the both examples.",
+    "\ngive ALL THE POSSIBLE TENSES AND PRONOUNS in the conjugation section, take care about the word's language's specifications, do not forget anything"+
+    "\nwhen you give an example vary your words, and give the start index of the word and the end index of the word's delimitation in the both examples."+
+    "\nBe very careful about the positions, they should work with this code:<h5> { meaning.translated_example.slice( 0, meaning.pos_word_start_index_translated_example ) } <span class='join_word'> { meaning.translated_example.slice( meaning.pos_word_start_index_translated_example, meaning.pos_word_end_index_translated_example ) } </span> { meaning.translated_example.slice( meaning.pos_word_end_index_translated_example ) } </h5>",
     config: {
       responseMimeType: "application/json",
       temperature: 0.1,

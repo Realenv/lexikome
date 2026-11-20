@@ -1,4 +1,6 @@
 ---
+
+const {show_subheader} = Astro.props;
 import Search from '../assets/search.svg';
 import RU from '../assets/ru.svg';
 import AR from '../assets/ar.svg';
@@ -30,7 +32,7 @@ import Close from '../assets/close.svg';
 			Train
 		</a>
 	</header>
-	<div class="subheader">
+	{show_subheader == "true" && <div class="subheader">
 		<div class="pick_lang">
 			<h2>Pick word's language:</h2>
 			<div class="choose_lang">
@@ -81,10 +83,7 @@ import Close from '../assets/close.svg';
 				</div>
 			</div>
 		</div>
-		<div class="select_last">
-
-		</div>
-	</div>
+	</div>}
 </div>
 <script>
 const search_btn = document.getElementById("search_btn");
