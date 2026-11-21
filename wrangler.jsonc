@@ -35,6 +35,12 @@
 			"database_name": "lexikome-db",
 			"database_id": "48a132da-0441-43a6-9ba9-b414abc864e0",
 			"remote": true
+		},
+		{
+			"binding": "account",
+			"database_name": "account",
+			"database_id": "a00a421d-84ce-4c80-ad00-b2cbebc5a36e",
+			"remote": true
 		}
 	],
 	"kv_namespaces": [
@@ -46,6 +52,10 @@
 		}
 	],
 	"secrets": {
-		"required": ["GEMINI_API_KEY", "SPEECHIFY_API_KEY", "GITHUB_API_KEY"]
+		"required": [
+			"GEMINI_API_KEY",
+			"SPEECHIFY_API_KEY",
+			"GITHUB_API_KEY"
+		]
 	}
 }

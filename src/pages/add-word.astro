@@ -5,6 +5,10 @@ import Footer from '../components/Footer.astro';
 import AddWord from '../components/AddWord.astro';
 export const prerender = false;
 
+const password = Astro.cookies.get("password");
+if(!(password && password.value.length > 5)){
+    return Astro.redirect("/create-account");
+}
 ---
 
 <Layout>
