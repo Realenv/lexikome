@@ -33,23 +33,3 @@ body {
 	justify-content: space-between;
 }
 </style>
-<script>
-async function reload_words(entries: [string, string][]){
-    const { page_count, words }: {page_count: number, words: any} = await (await fetch("/words.json", {
-        method: "GET",
-        body: JSON.stringify({
-            entries: entries
-        }),
-        headers: {
-            "Content-type": "application/json; charset=UTF-8"
-        }
-    })).json();
-    const container = document.getElementById("container")!;
-    const url = new URL("/word");
-    url.searchParams.append("word", words["word"]);
-    url.searchParams.append("context_aware_meanings", words["context_aware_meanings"]);
-    url.searchParams.append("category", words["category"]);
-    url.searchParams.append("language", words["language"]);
-    container.innerHTML = await (await fetch(url.href)).text();
-}
-</script>

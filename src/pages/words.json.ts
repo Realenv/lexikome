@@ -23,6 +23,7 @@ export async function get_words(entries: [string, string][]){
             }
         }
     }
+    console.log(page);
     let sql = "";
     const sql_order = " ORDER BY time_added ASC LIMIT 10 OFFSET "+(page*10).toString();
     if (sql_bind.length != 0 && sql_bind_2.length != 0){
@@ -47,6 +48,7 @@ export async function get_words(entries: [string, string][]){
 
 export const GET = (async ({ url }) => {
     const entries: [string, string][] = url.searchParams.entries().toArray();
+    console.log(entries);
     return new Response(
         JSON.stringify(await get_words(entries))
     );

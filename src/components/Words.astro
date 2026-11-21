@@ -11,13 +11,36 @@ const { page_count, words }: { page_count: number, words: {
 }[] } = await get_words(entries);
 ---
 
+
 <div id="container">
+<div id="pagination">
+{
+    Array.from({length: page_count}, (_, i) => i).map((i)=>(
+        <button>{i}</button>
+    ))
+}
+</div>
 {words.map((word_data, i)=>{
-    return <>
-        <Word i_word={i} {...word_data} />
-    </>
+    return <Word i_word={i} {...word_data} />
 })}
 </div>
+<script>
+import { reload_words } from "../scripts/reload_words";
+
+const pagination = document.getElementById("pagination")!;
+for(let i=0; i<pagination.children.length; i++){
+    pagination.children[i].addEventListener("click", async ()=>{
+        const url = new URL(window.location.href);
+        url.searchParams.set("page", i.toString());
+		let url_to_send = new URL("/words.json", window.location.origin);
+		url.searchParams.forEach((value, key)=>{
+			url_to_send.searchParams.set(key, value);
+		});
+		window.history.replaceState("", "", url);
+		await reload_words(url_to_send);
+    });
+}
+</script>
 <script is:inline>
 function play_audio(sha){
     fetch("/get-audio.json", {
