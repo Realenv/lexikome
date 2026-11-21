@@ -2,7 +2,7 @@
 ---
 <div>
     <div class="loadingDiv"><div></div><span id="report"></span></div>
-    <div id="add_word">
+    <div id="container-div">
         <h2>Sign into your account</h2>
         <section class="wordToChoose">
             <div>
@@ -19,6 +19,7 @@
         </section>
         <div>
             <div>
+                <p id="error"></p>
                 <a href="/create-account">I do not have an account...</a>
                 <button id="submit_btn">submit</button>
             </div>
@@ -28,7 +29,7 @@
 <script>
 
 async function do_request(user_name: string, password: string){
-    fetch("/sign-in.json", {
+    fetch("/signed.json", {
         method: "POST",
         body: JSON.stringify({
             username: user_name,
@@ -41,15 +42,25 @@ async function do_request(user_name: string, password: string){
         const result: { message: string,
                         error: boolean,
                         error_source: string } = await response.json();
-        document.getElementById("add_word")!.classList.remove("isLoading");
+        document.getElementById("container-div")!.classList.remove("isLoading");
         if(result.error){
-            document.getElementById("add_word")!.classList.add("isFinish");
-            document.getElementById("report")!.innerHTML = result.message;
-            setTimeout(()=>{window.location.assign("/")}, 5000);
+            document.getElementById("error")!.innerHTML = result.message;
+        } else{
+            cookieStore.set({
+                sameSite: "none",
+                name: "username",
+                value: user_name
+            });
+            cookieStore.set({
+                sameSite: "none",
+                name: "password",
+                value: password
+            });
+            document.getElementById("error")!.innerHTML = "";
         }
     });
-    document.getElementById("report")!.innerHTML = "Creating the account, please wait";
-    document.getElementById("add_word")!.classList.add("isLoading");
+    document.getElementById("report")!.innerHTML = "Signing to the intended account, please wait";
+    document.getElementById("container-div")!.classList.add("isLoading");
 }
 document.getElementById("submit_btn")!.onclick = ()=>{
     let ok = true;
@@ -75,16 +86,9 @@ document.getElementById("submit_btn")!.onclick = ()=>{
     padding:0px;
     margin:0px;
 }
-div:has(#add_word){
+div:has(#container-div){
     display:flex;
     justify-content: center;
-}
-#note{
-    color:gray;
-    text-align: center;
-    padding: 3px 15px;
-    font-family: "lato", sans-serif;
-    user-select: none;
 }
 .wordToChoose{
     display: flex;
@@ -150,7 +154,7 @@ h2{
     border-right: 5px solid hsl(var(--hue), 100%, 5%);
     animation:loadingAnimation 2s infinite;
 }
-#add_word{
+#container-div{
     border-radius: 1px;
     background-color: hsl(var(--hue), 100%, 1%);
     max-width: 450px;
@@ -170,7 +174,7 @@ hr{
     margin-top:7px;
     margin: 15px 25px;
 }
-#add_word button, .wordToChoose select{
+#container-div button, .wordToChoose select{
 	border-radius:2px;
 	border:none;
     text-decoration: none;
@@ -188,56 +192,56 @@ hr{
 	transition: 200ms all;
     background-color: hsl(var(--hue), 100%, 30%);
 }
-#add_word button:hover, .wordToChoose select:hover{
+#container-div button:hover, .wordToChoose select:hover{
     background-color: hsl(var(--hue), 100%, 30%);
     filter:brightness(141%)
 }
-#add_word button:active{
+#container-div button:active{
     background-color: hsl(var(--hue), 100%, 50%);
     filter:brightness(200%);
 }
-#add_word input[type="text"]{
+#container-div input[type="text"]{
     background-color: hsl(var(--hue), 11%, 5%);
     border:none;
     padding: 11px 15px;
     border-radius: 2px;
 }
-#add_word > section label{
+#container-div > section label{
     color:white;
     padding: 5px;
     font-family: "lato", sans-serif;
     text-transform: capitalize;
 }
-#add_word > div{
+#container-div > div{
     display: flex;
     justify-content: center;
     padding:15px;
 }
-#add_word > div > div > div{
+#container-div > div > div > div{
     display:flex;
     flex-wrap:wrap;
 }
-#add_word > div > div > div p:not(#please_accept), #add_word > div label{
+#container-div > div > div > div p:not(#please_accept), #container-div > div label{
     color:white;
     padding: 5px;
     font-size: 16px;
     font-family: "lato", sans-serif;
     font-variant: small-caps;
 }
-#add_word > div > div > div input{
+#container-div > div > div > div input{
     margin: 5px 15px;
 }
-#add_word > div > div{
+#container-div > div > div{
     display:flex;
     flex-direction: column;
     gap:5px;
     align-items: end;
 }
-#add_word input[type="text"]{
+#container-div input[type="text"]{
     color:white;
     outline:none;
 }
-#add_word input[type="text"]{
+#container-div input[type="text"]{
     background-color: #151515;
 }
 a{
@@ -245,9 +249,10 @@ a{
     color:hsl(var(--hue), 100%, 50%);
     font-family:"lato", sans-serif;
 }
-#please_accept, #please_fill, #please_fill2{
+#please_fill, #please_fill2, #error{
     color:red;
     font-family: "lato";
+    text-align: center;
     font-style: italic;
     user-select:none;
 }

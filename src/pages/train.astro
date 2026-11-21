@@ -6,6 +6,7 @@ import Train from '../components/Train.astro';
 export const prerender = false;
 
 const password = Astro.cookies.get("password");
+console.log(Astro.cookies);
 if(!(password && password.value.length > 5)){
     return Astro.redirect("/create-account");
 }
