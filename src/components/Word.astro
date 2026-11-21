@@ -15,7 +15,14 @@ const matching: {[key: string]: SvgComponent & ImageMetadata} = {
     "french": FR,
     "russian": RU
 }
-const {word, context_aware_meanings, language, category} = Astro.props;
+interface Props {
+    i_word: number,
+    word: string,
+    context_aware_meanings: string, 
+    language: string,
+    category: string
+}
+const {i_word, word, context_aware_meanings, language, category} = Astro.props;
 const LanguageSvg = matching[language];
 const parsed_data = JSON.parse(context_aware_meanings);
 const meanings: {
@@ -48,7 +55,7 @@ for(const meaning of meanings){
 }
 ---
 
-<div class="container">
+<div class="container" id={"container-word-"+i_word}>
     <div>
         <h2><LanguageSvg width={18} height={18}/>{word}<span>{category}</span></h2>
         <div onclick={"play_audio('"+parsed_data.sha+"')"}><Sound/></div>
@@ -147,6 +154,39 @@ for(const meaning of meanings){
         </>
     }
 </div>
+<script define:vars={{ i_word }}>
+function show_tense(children){
+    for(let i = 0; i < children.length; i++){
+            if(i != count){
+                children[i].setAttribute("style", "display:none");
+            }
+            
+            else{
+                children[i].setAttribute("style", "display:table");
+            }
+        }
+}
+let count = 0;
+let id_num = "container-word-"+i_word;
+id_num = "#" + id_num;
+const previous = document.querySelector(id_num+" .previous");
+const next = document.querySelector(id_num+" .next");
+const conjugation = document.querySelector(id_num+" .conjugation");
+previous?.addEventListener("click", () => {
+    count--;
+    if (count == -1){
+        count = conjugation?.children?.length - 1;
+    }
+    show_tense(conjugation?.children);
+});
+next?.addEventListener("click", () => {
+    count++;
+    if (count == conjugation?.children?.length){
+        count = 0;
+    }
+    show_tense(conjugation?.children);
+});
+</script>
 <style>
 *{
 	padding:0px;

@@ -1,6 +1,7 @@
 ---
 import Word from "../components/Word.astro";
-const {word, learner_language, context_aware_meanings, language, category}: {
+const {i, word, learner_language, context_aware_meanings, language, category}: {
+    i: number,
     word: string,
     learner_language: string,
     context_aware_meanings: string,
@@ -11,5 +12,5 @@ export const partial = true;
 ---
 
 <>
-<Word word={word} context_aware_meanings={context_aware_meanings} language={language} category={category}/>
+<Word i_word={i} word={word} context_aware_meanings={context_aware_meanings} language={language} category={category}/>
 </>
