@@ -1,6 +1,7 @@
 ---
 import Word from "./Word.astro";
 import { get_words } from "../pages/words.json";
+import "../styles/words.css";
 const entries = Astro.url.searchParams.entries().toArray();
 const { page_count, words }: { page_count: number, words: {
     word: string;
@@ -10,24 +11,25 @@ const { page_count, words }: { page_count: number, words: {
     category: string;
 }[] } = await get_words(entries);
 ---
-
-
-<div id="container">
-<div id="pagination">
-{
-    Array.from({length: page_count}, (_, i) => i).map((i)=>(
-        <button>{i}</button>
-    ))
-}
-</div>
-{words.map((word_data, i)=>{
-    return <Word i_word={i} {...word_data} />
-})}
-</div>
+<>
+    <h2>Pick the page number</h2>
+    <div id="container">
+    <div id="pagination_element" class="pagination">
+    {
+        Array.from({length: page_count}, (_, i) => i).map((i)=>(
+            <button>{i}</button>
+        ))
+    }
+    </div>
+    {words.map((word_data, i)=>{
+        return <Word i_word={i} {...word_data} />
+    })}
+    </div>
+</>
 <script>
 import { reload_words } from "../scripts/reload_words";
 
-const pagination = document.getElementById("pagination")!;
+const pagination = document.getElementById("pagination_element")!;
 for(let i=0; i<pagination.children.length; i++){
     pagination.children[i].addEventListener("click", async ()=>{
         const url = new URL(window.location.href);
@@ -40,6 +42,9 @@ for(let i=0; i<pagination.children.length; i++){
 		await reload_words(url_to_send);
     });
 }
+pagination.removeAttribute("id");
+const pagination_bottom_page = pagination.cloneNode(true);
+document.getElementById("container")!.appendChild(pagination_bottom_page);
 </script>
 <script is:inline>
 function play_audio(sha){
@@ -60,10 +65,14 @@ function play_audio(sha){
 }
 </script>
 <style>
-#container{
-    display:flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    flex-grow:1;
+h2{
+    color:white;
+    margin:0px;
+    padding:15px 0px 0px 0px;
+    font-size:15px;
+    text-transform: uppercase;
+    font-family: "lato", sans-serif;
+    text-align: center;
+    font-weight: 300;
 }
 </style>
