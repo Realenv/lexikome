@@ -1,42 +1,51 @@
 ---
-import { isLanguage, isLearnerLanguage } from "../types/types";
 import Word from "./Word.astro";
-import { env } from 'cloudflare:workers';
-
-let sql_bind: string[] = [];
-let sql_bind_2: string[] = [];
-for(const [key, value] of Astro.url.searchParams.entries()){
-    if(value == "false"){
-        if (!(key in sql_bind) && isLanguage(key)){
-            sql_bind.push(key);
-        }
-        if (!(key in sql_bind_2) && key.length > 3 && isLearnerLanguage(key.slice(0, -2))){
-            sql_bind_2.push(key.slice(0, -2));
-        }
-    }
-}
-let sql = "SELECT * FROM words ";
-const sql_order = " ORDER BY time_added ASC LIMIT 10";
-if (sql_bind.length != 0 && sql_bind_2.length != 0){
-    sql += "WHERE language not in (" + Array(sql_bind.length).fill("?").join(", ") + ") AND translation_language not in (" + Array(sql_bind_2.length).fill("?").join(", ") + ")";
-} else if(sql_bind.length != 0 && sql_bind_2.length == 0){
-    sql += "WHERE language not in (" + Array(sql_bind.length).fill("?").join(", ") + ")";
-} else if(sql_bind.length == 0 && sql_bind_2.length != 0){
-    sql += "WHERE language not in (" + Array(sql_bind_2.length).fill("?").join(", ") + ")";
-}
-sql += sql_order;
-const result = await env.lexikome_db.prepare(sql).bind(...sql_bind.concat(sql_bind_2)).run();
-let listOfWords = [];
-for(const word of result.results){
-    listOfWords.push({word: word["word"], learner_language: word["translation_language"], context_aware_meanings: word["context_aware_meanings"], language: word["language"], category: word["category"]});
-}
+import { get_words } from "../pages/words.json";
+import "../styles/words.css";
+const entries = Astro.url.searchParams.entries().toArray();
+const { page_count, words }: { page_count: number, words: {
+    word: string;
+    learner_language: string;
+    context_aware_meanings: string;
+    language: string;
+    category: string;
+}[] } = await get_words(entries);
 ---
+<>
+    <h2>Pick the page number</h2>
+    <div id="container">
+    <div id="pagination_element" class="pagination">
+    {
+        Array.from({length: page_count}, (_, i) => i).map((i)=>(
+            <button>{i}</button>
+        ))
+    }
+    </div>
+    {words.map((word_data, i)=>{
+        return <Word i_word={i} {...word_data} />
+    })}
+    </div>
+</>
+<script>
+import { reload_words } from "../scripts/reload_words";
 
-<div id="container">
-{listOfWords.map((word_data)=>{
-    return <Word {...word_data}/>
-})}
-</div>
+const pagination = document.getElementById("pagination_element")!;
+for(let i=0; i<pagination.children.length; i++){
+    pagination.children[i].addEventListener("click", async ()=>{
+        const url = new URL(window.location.href);
+        url.searchParams.set("page", i.toString());
+		let url_to_send = new URL("/words.json", window.location.origin);
+		url.searchParams.forEach((value, key)=>{
+			url_to_send.searchParams.set(key, value);
+		});
+		window.history.replaceState("", "", url);
+		await reload_words(url_to_send);
+    });
+}
+pagination.removeAttribute("id");
+const pagination_bottom_page = pagination.cloneNode(true);
+document.getElementById("container")!.appendChild(pagination_bottom_page);
+</script>
 <script is:inline>
 function play_audio(sha){
     fetch("/get-audio.json", {
@@ -53,55 +62,17 @@ function play_audio(sha){
         audio.src = audioSource;
         audio.play();
     });
-    /*document.body.classList.add("loading");*/
-}
-</script>
-<script>
-const containers = document.getElementsByClassName("container");
-let count: {[key: number]: number} = {};
-function show_tense(p: number, children: HTMLCollection){
-    for(let i = 0; i < children.length; i++){
-            if(i != count[p]){
-                children[i].setAttribute("style", "display:none");
-            }
-            
-            else{
-                children[i].setAttribute("style", "display:table");
-            }
-        }
-}
-for(let i = 0; i<containers.length; i++){
-    const container = containers[i];
-    let id_num = "getword-"+i;
-    container.setAttribute("id", id_num)
-    id_num = "#" + id_num;
-    const previous = document.querySelector(id_num+" .previous")!;
-    const next = document.querySelector(id_num+" .next")!;
-    const conjugation = document.querySelector(id_num+" .conjugation")!;
-    count[i] = 0;
-    if(previous && next && conjugation){
-        (previous as HTMLElement).onclick = () => {
-            count[i]--;
-            if (count[i] == -1){
-                count[i] = conjugation.children.length - 1;
-            }
-            show_tense(i, conjugation.children);
-        }
-        (next as HTMLElement).onclick = () => {
-            count[i]++;
-            if (count[i] == conjugation.children.length){
-                count[i] = 0;
-            }
-            show_tense(i, conjugation.children);
-        }
-    }
 }
 </script>
 <style>
-#container{
-    display:flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    flex-grow:1;
+h2{
+    color:white;
+    margin:0px;
+    padding:15px 0px 0px 0px;
+    font-size:15px;
+    text-transform: uppercase;
+    font-family: "lato", sans-serif;
+    text-align: center;
+    font-weight: 300;
 }
 </style>

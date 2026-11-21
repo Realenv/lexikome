@@ -1,0 +1,16 @@
+---
+import Word from "../components/Word.astro";
+const {i, word, learner_language, context_aware_meanings, language, category}: {
+    i: number,
+    word: string,
+    learner_language: string,
+    context_aware_meanings: string,
+    language: string,
+    category: string
+} = await Astro.request.json();
+export const partial = true;
+---
+
+<>
+<Word i_word={i} word={word} context_aware_meanings={context_aware_meanings} language={language} category={category}/>
+</>
