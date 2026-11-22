@@ -35,5 +35,22 @@ export async function reload_words(url_to_fetch: URL){
             })).text();
         container.appendChild(div);
     });
-    container.appendChild(pagination.cloneNode(true));
+    const pagination2 = document.createElement("div")!;
+    pagination2.classList.add("pagination");
+    for(let i=0; i<page_count; i++){
+        const btn = document.createElement("button")!;
+        btn.innerHTML = i.toString();
+        btn.addEventListener("click", async ()=>{
+            const url = new URL(window.location.href);
+            url.searchParams.set("page", i.toString());
+            let url_to_send = new URL("/words.json", window.location.origin);
+            url.searchParams.forEach((value, key)=>{
+                url_to_send.searchParams.set(key, value);
+            });
+            window.history.replaceState("", "", url);
+            await reload_words(url_to_send);
+        });
+        pagination2.appendChild(btn);
+    }
+    container.appendChild(pagination2);
 }
