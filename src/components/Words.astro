@@ -14,16 +14,23 @@ const { page_count, words }: { page_count: number, words: {
 <>
     <h2>Pick the page number</h2>
     <div id="container">
-    <div id="pagination_element" class="pagination">
-    {
-        Array.from({length: page_count}, (_, i) => i).map((i)=>(
-            <button>{i}</button>
-        ))
-    }
-    </div>
-    {words.map((word_data, i)=>{
-        return <Word i_word={i} {...word_data} />
-    })}
+        <div id="pagination_element" class="pagination">
+        {
+            Array.from({length: page_count}, (_, i) => i).map((i)=>(
+                <button>{i}</button>
+            ))
+        }
+        </div>
+        {words.map((word_data, i)=>{
+            return <Word i_word={i} {...word_data} />
+        })}
+        <div id="bottom_pagination_element" class="pagination">
+        {
+            Array.from({length: page_count}, (_, i) => i).map((i)=>(
+                <button>{i}</button>
+            ))
+        }
+        </div>
     </div>
 </>
 <script>
@@ -42,9 +49,20 @@ for(let i=0; i<pagination.children.length; i++){
 		await reload_words(url_to_send);
     });
 }
-pagination.removeAttribute("id");
-const pagination_bottom_page = pagination.cloneNode(true);
-document.getElementById("container")!.appendChild(pagination_bottom_page);
+
+const bottom_pagination = document.getElementById("bottom_pagination_element")!;
+for(let i=0; i<bottom_pagination.children.length; i++){
+    bottom_pagination.children[i].addEventListener("click", async ()=>{
+        const url = new URL(window.location.href);
+        url.searchParams.set("page", i.toString());
+		let url_to_send = new URL("/words.json", window.location.origin);
+		url.searchParams.forEach((value, key)=>{
+			url_to_send.searchParams.set(key, value);
+		});
+		window.history.replaceState("", "", url);
+		await reload_words(url_to_send);
+    });
+}
 </script>
 <script is:inline>
 function play_audio(sha){

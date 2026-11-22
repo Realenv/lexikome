@@ -83,7 +83,9 @@ async function do_request(words: string, language: string, language_l: string, c
                         error: boolean,
                         error_source: string} = await response.json();
         document.getElementById("add_word")!.classList.remove("isLoading");
-        if(result.error){
+        if(result.error_source == "account"){
+            window.location.assign("/create-account");
+        } else if(result.error){
             document.getElementById("add_word")!.classList.add("isFinish");
             document.getElementById("report")!.innerHTML = result.message;
             setTimeout(()=>{window.location.assign("/")}, 5000);

@@ -41,9 +41,9 @@ export async function get_words(entries: [string, string][]){
         listOfWords.push({word: word["word"] as string, learner_language: word["translation_language"] as string, context_aware_meanings: word["context_aware_meanings"] as string, language: word["language"] as string, category: word["category"] as string});
     }
     return {
-                page_count: count_all,
-                words: listOfWords
-            };
+        page_count: count_all,
+        words: listOfWords
+    };
 }
 
 export const GET = (async ({ url }) => {

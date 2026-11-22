@@ -1,0 +1,286 @@
+---
+---
+<div>
+    <div class="loadingDiv"><div></div><span id="report"></span></div>
+    <div id="container-div">
+        <h2>Sign into your account</h2>
+        <section class="wordToChoose">
+            <div>
+                <label for="username">your current username</label>
+                <input id="username" type="text"/>
+                <p id="please_fill"></p>
+            </div>
+            <hr/>
+            <div>
+                <label for="password">Enter your current password</label>
+                <input id="password" type="text"/>
+                <p id="please_fill2"></p>
+            </div>
+        </section>
+        <div>
+            <div>
+                <p id="error"></p>
+                <a href="/create-account">I do not have an account...</a>
+                <button id="submit_btn">submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+async function do_request(user_name: string, password: string){
+    fetch("/signed.json", {
+        method: "POST",
+        body: JSON.stringify({
+            username: user_name,
+            password: password
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    }).then(async (response)=>{
+        const result: { message: string,
+                        error: boolean,
+                        error_source: string } = await response.json();
+        document.getElementById("container-div")!.classList.remove("isLoading");
+        if(result.error){
+            document.getElementById("error")!.innerHTML = result.message;
+        } else{
+            let url = new URL(window.location.href);
+            url.pathname = "";
+            window.location.href = url.toString();
+        }
+    });
+    document.getElementById("report")!.innerHTML = "Signing to the intended account, please wait";
+    document.getElementById("container-div")!.classList.add("isLoading");
+}
+document.getElementById("submit_btn")!.onclick = ()=>{
+    let ok = true;
+    if((document.getElementById("username")! as HTMLInputElement).value == ""){
+        ok = false;
+        document.getElementById("please_fill")!.innerHTML = "You have to fill this input";
+    } else{
+        document.getElementById("please_fill")!.innerHTML = "";
+    }
+    if((document.getElementById("password")! as HTMLInputElement).value == ""){
+        ok = false;
+        document.getElementById("please_fill2")!.innerHTML = "You have to fill this input";
+    } else{
+        document.getElementById("please_fill2")!.innerHTML = "";
+    }
+    if(ok){
+        do_request((document.getElementById("username")! as HTMLInputElement).value, (document.getElementById("password")! as HTMLInputElement).value);
+    }
+}
+</script>
+<style>
+*{
+    padding:0px;
+    margin:0px;
+}
+div:has(#container-div){
+    display:flex;
+    justify-content: center;
+}
+.wordToChoose{
+    display: flex;
+    padding:0px 15px;
+    color:white;
+    flex-wrap:wrap;
+    gap:1px 15px;
+    justify-content: center;
+}
+.wordToChoose div:has(>label){
+    display:flex;
+    flex-direction: column;
+}
+.wordToChoose select{
+    height:35px;
+    outline:none;
+}
+.wordToChoose option{
+    background:hsl(var(--hue), 50%, 30%);
+    outline:none;
+    border:none;
+}
+h2{
+    text-align: center;
+    color: white;
+    font-family: "lato", sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-style: italic;
+    padding:5px 15px;
+    font-size: 15px;
+    color:hsl(var(--hue), 100%, 90%);
+    letter-spacing: 1px;
+}
+@keyframes loadingAnimation {
+    0%{
+        rotate: 0deg;
+        filter: brightness(100%) contrast(1);
+    }
+    25%{
+        filter: brightness(200%) contrast(3);
+    }
+    50%{
+        rotate: 100deg;
+        filter: brightness(50%) contrast(0.5);
+    }
+    75%{
+        filter: brightness(200%) contrast(2);
+    }
+    100%{
+        rotate: 360deg;
+        filter: brightness(100%) contrast(1);
+    }
+}
+.loadingDiv div{
+    height:55px;
+    width:55px;
+    border-radius: 100%;
+    border: 5px solid #0000;
+    border-bottom: 5px solid hsl(var(--hue), 100%, 34%);
+    border-left: 5px solid hsl(var(--hue), 100%, 24%);
+    border-top: 5px solid hsl(var(--hue), 100%, 14%);
+    border-right: 5px solid hsl(var(--hue), 100%, 5%);
+    animation:loadingAnimation 2s infinite;
+}
+#container-div{
+    border-radius: 1px;
+    background-color: hsl(var(--hue), 100%, 1%);
+    max-width: 450px;
+    padding:21px 0px;
+    color:black;
+    flex-grow:1;
+    margin:4vw;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+}
+hr{
+    width: min(60%, 355px);
+    border:none;
+    background-color: #222;
+    height:1px;
+    margin-top:7px;
+    margin: 15px 25px;
+}
+#container-div button, .wordToChoose select{
+	border-radius:2px;
+	border:none;
+    text-decoration: none;
+	font-style: normal;
+	color:#eee;
+    background:none;
+	text-transform: uppercase;
+	display:flex;
+	letter-spacing: -1px;
+	justify-content: center;
+	align-items: center;
+	padding:5px 15px;
+	font-family:"lato", sans-serif;
+	font-weight: 300;
+	transition: 200ms all;
+    background-color: hsl(var(--hue), 100%, 30%);
+}
+#container-div button:hover, .wordToChoose select:hover{
+    background-color: hsl(var(--hue), 100%, 30%);
+    filter:brightness(141%)
+}
+#container-div button:active{
+    background-color: hsl(var(--hue), 100%, 50%);
+    filter:brightness(200%);
+}
+#container-div input[type="text"]{
+    background-color: hsl(var(--hue), 11%, 5%);
+    border:none;
+    padding: 11px 15px;
+    border-radius: 2px;
+}
+#container-div > section label{
+    color:white;
+    padding: 5px;
+    font-family: "lato", sans-serif;
+    text-transform: capitalize;
+}
+#container-div > div{
+    display: flex;
+    justify-content: center;
+    padding:15px;
+}
+#container-div > div > div > div{
+    display:flex;
+    flex-wrap:wrap;
+}
+#container-div > div > div > div p:not(#please_accept), #container-div > div label{
+    color:white;
+    padding: 5px;
+    font-size: 16px;
+    font-family: "lato", sans-serif;
+    font-variant: small-caps;
+}
+#container-div > div > div > div input{
+    margin: 5px 15px;
+}
+#container-div > div > div{
+    display:flex;
+    flex-direction: column;
+    gap:5px;
+    align-items: end;
+}
+#container-div input[type="text"]{
+    color:white;
+    outline:none;
+}
+#container-div input[type="text"]{
+    background-color: #151515;
+}
+a{
+    padding:5px;
+    color:hsl(var(--hue), 100%, 50%);
+    font-family:"lato", sans-serif;
+}
+#please_fill, #please_fill2, #error{
+    color:red;
+    font-family: "lato";
+    text-align: center;
+    font-style: italic;
+    user-select:none;
+}
+.loadingDiv{
+    position:fixed;
+    left:50%;
+    top:50%;
+    translate: -50% -50%;
+    z-index: 3;
+    background-color: #000;
+    border-radius: 2px;
+    display:none;
+    justify-content: center;
+    gap:15px;
+    color:hsl(var(--hue), 100%, 50%);
+    font-family: "lato";
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-wrap: wrap;
+    align-items: center;
+    padding:25px;
+}
+.isLoading{
+    filter: blur(5);
+}
+div:has(.isLoading) .loadingDiv, div:has(.isFinish) .loadingDiv{
+    display:flex;
+}
+div:has(.isFinish) .loadingDiv div{
+    display:none;
+}
+div:has(.isFinish) .loadingDiv{
+    color:red;
+    letter-spacing: 1px;
+    font-size:18px;
+    font-weight: 600;
+}
+</style>
