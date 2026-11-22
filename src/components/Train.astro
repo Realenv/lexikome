@@ -1,3 +1,226 @@
 ---
+import RU from '../assets/ru.svg';
+import AR from '../assets/ar.svg';
+import TR from '../assets/tr.svg';
+import EN from '../assets/us.svg';
+import FR from '../assets/fr.svg';
 
+const preferred_lang = Astro.cookies.get("preferred_lang")?.value ?? "english";
 ---
+<div>
+    <div class="select_cat">
+        <h2>Select the categories</h2>
+        <div>
+            <label for="search_cat">Search a category</label>
+            <input type="search" id="search_cat"/>
+        </div>
+        <div>
+            <label for="num_cat">Select X number of words</label>
+            <input type="number" id="num_cat" min="0" max="25" value="5"/>
+        </div>
+        <div>
+            <label for="difficulty">Select difficulty</label>
+            <select id="difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+        </div>
+        <div>
+            <div class="pick_lang">
+                <h2>Pick word's language:</h2>
+                <div class="choose_lang">
+                    <div>
+                        <label for="tr_lang"><TR width={18} class={"svg_lang"}/>tr</label>
+                        <input type="checkbox" id="tr_lang" checked/>
+                    </div>
+                    <div>
+                        <label for="en_lang"><EN width={18} class={"svg_lang"}/>en</label>
+                        <input type="checkbox" id="en_lang" checked/>
+                    </div>
+                    <div>
+                        <label for="ar_lang"><AR width={18} class={"svg_lang"}/>ar</label>
+                        <input type="checkbox" id="ar_lang" checked/>
+                    </div>
+                    <div>
+                        <label for="ru_lang"><RU width={18} class={"svg_lang"}/>ru</label>
+                        <input type="checkbox" id="ru_lang" checked/>
+                    </div>
+                    <div>
+                        <label for="fr_lang"><FR width={18} class={"svg_lang"}/>fr</label>
+                        <input type="checkbox" id="fr_lang" checked/>
+                    </div>
+                </div>
+            </div>
+            <div class="pick_lang">
+                <h2>Pick your language:</h2>
+                <div class="choose_lang">
+                    <div>
+                        <label for="tr_lang_l"><TR width={18} class={"svg_lang"}/>tr</label>
+                        {
+                            preferred_lang == "turkish" ? <input type="checkbox" id="tr_lang_l" checked/> : <input type="checkbox" id="tr_lang_l" />
+                        }
+                    </div>
+                    <div>
+                        <label for="en_lang_l"><EN width={18} class={"svg_lang"}/>en</label>
+                        {
+                            preferred_lang == "english" ? <input type="checkbox" id="en_lang_l" checked/> : <input type="checkbox" id="en_lang_l" />
+                        }
+                    </div>
+                    <div>
+                        <label for="ar_lang_l"><AR width={18} class={"svg_lang"}/>ar</label>
+                        {
+                            preferred_lang == "arabic" ? <input type="checkbox" id="ar_lang_l" checked/> : <input type="checkbox" id="ar_lang_l" />
+                        }
+                    </div>
+                    <div>
+                        <label for="ru_lang_l"><RU width={18} class={"svg_lang"}/>ru</label>
+                        {
+                            preferred_lang == "russian" ? <input type="checkbox" id="ru_lang_l" checked/> : <input type="checkbox" id="ru_lang_l" />
+                        }
+                    </div>
+                    <div>
+                        <label for="fr_lang_l"><FR width={18} class={"svg_lang"}/>fr</label>
+                        {
+                            preferred_lang == "french" ? <input type="checkbox" id="fr_lang_l" checked/> : <input type="checkbox" id="fr_lang_l" />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>Select individual words</h2>
+        <div>
+            <label for="search_word">Search a word</label>
+            <input type="search" id="search_word"/>
+        </div>
+        <div style="justify-content:end">
+            <button id="gotrain">Go training</button>
+        </div>
+    </div>
+</div>
+<style>
+*{
+    padding:0px;
+    margin:0px;
+}
+#search_word{
+    flex-grow: 1;
+}
+div:has(.select_cat){
+    display:flex;
+    justify-content: center;
+}
+.select_cat{
+    display:flex;
+    flex-direction:column;
+    gap: 15px;
+    background-color: hsl(var(--hue), 50%, 15%);
+    color: #ddd;
+    max-width: 455px;
+    margin: 15px;
+	font-family:"lato", sans-serif;
+    padding:15px;
+    box-sizing: border-box;
+    box-shadow: 0px 5px 11px 11px hsla(var(--hue), 50%, 20%, 0.1);
+}
+.select_cat h2{
+    color: hsl(var(--hue), 75%, 75%);
+    text-transform: uppercase;
+    font-size:15px;
+    font-weight: 300;
+    user-select: none;
+    padding:0px 5px;
+}
+.select_cat > *{
+    display: flex;
+    justify-content: space-between;
+    gap:5px 15px;
+}
+@media (width < 400px) {
+    .select_cat > *{
+        flex-direction: column;
+    }
+}
+.select_cat button{
+    background:hsl(170, 100%, 40%);
+    padding: 5px 15px;
+    border-radius: 2px;
+    border:none;
+    color:black;
+    font-family: "lato", sans-serif;
+    text-transform: uppercase;
+    transition: 200ms all;
+    box-shadow: 0px 3px 15px 1px hsla(var(--hue), 50%, 50%, 0.3);
+}
+.select_cat button:hover{
+    filter:brightness(135%);
+}
+.select_cat button:active{
+    filter:brightness(75%);
+}
+label, input{
+	font-family:"lato", sans-serif;
+}
+input, select{
+    border:none;
+    color:white;
+    background-color: hsl(var(--hue), 50%, 25%);
+    padding:5px 15px 5px 15px;
+    color-scheme: dark;
+    outline:none;
+    box-shadow:0px 0px 5px 1px #0002;
+    transition: 100ms all;
+}
+input:hover, select:hover{
+    filter:brightness(110%);
+}
+input:focus, select:focus{
+    filter:brightness(90%);
+}
+.pick_lang{
+	display:flex;
+	flex-direction:column;
+}
+.choose_lang{
+	display:flex;
+	flex-direction:row;
+    flex-wrap: wrap;
+	gap: 5px;
+}
+.choose_lang div:has(input){
+	color: hsl(0, 0%, 80%);
+}
+.choose_lang div:has(input:checked){
+	color: hsl(0, 0%, 100%);
+}
+.choose_lang div input{
+	display:none;
+}
+.choose_lang div:has(input) .svg_lang{
+	opacity:75%;
+	filter: brightness(50%)
+}
+.choose_lang div:has(input:checked) .svg_lang{
+	opacity:100%;
+	filter: brightness(100%)
+}
+.choose_lang div{
+	display:flex;
+	align-items: center;
+	justify-content: center;
+}
+.choose_lang label{
+	font-size: 15px;
+	text-transform: uppercase;
+	user-select: none;
+	font-family:"lato", sans-serif;
+	font-weight: 900;
+	display:flex;
+	gap:2px;
+}
+.svg_lang{
+	display:block;
+	padding:0px;
+	margin:0px;
+}
+</style>

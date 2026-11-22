@@ -26,6 +26,12 @@ export const POST = (async ({ request, cookies }) => {
             sameSite: "lax",
             maxAge: 60*60*24*365
         });
+        cookies.set("preferred_lang", account_info.preferred_lang, {
+            httpOnly: true,
+            path: "/",
+            sameSite: "lax",
+            maxAge: 60*60*24*365
+        });
         return new Response(
             JSON.stringify({
                 message: "success",
