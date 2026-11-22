@@ -46,17 +46,9 @@ async function do_request(user_name: string, password: string){
         if(result.error){
             document.getElementById("error")!.innerHTML = result.message;
         } else{
-            cookieStore.set({
-                sameSite: "none",
-                name: "username",
-                value: user_name
-            });
-            cookieStore.set({
-                sameSite: "none",
-                name: "password",
-                value: password
-            });
-            document.getElementById("error")!.innerHTML = "";
+            let url = new URL(window.location.href);
+            url.pathname = "";
+            window.location.href = url.toString();
         }
     });
     document.getElementById("report")!.innerHTML = "Signing to the intended account, please wait";

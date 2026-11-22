@@ -3,16 +3,24 @@ import Header from '../components/Header.astro';
 import Layout from '../layouts/Layout.astro';
 import Footer from '../components/Footer.astro';
 import AddWord from '../components/AddWord.astro';
+import { signIn } from '../scripts/sign-in';
 export const prerender = false;
 
 const password = Astro.cookies.get("password");
-if(!(password && password.value.length > 5)){
+const username = Astro.cookies.get("username");
+if(!(password) || !(username)){
     return Astro.redirect("/create-account");
+
+} else{
+    const result = await signIn(username.value, password.value);
+    if(result.password == null || result.username == null){
+    	return Astro.redirect("/create-account");
+    }
 }
 ---
 
 <Layout>
 	<Header />
-    <AddWord/>
+    <AddWord />
 	<Footer />
 </Layout>

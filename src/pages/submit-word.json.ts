@@ -4,6 +4,7 @@ import { env } from "cloudflare:workers";
 import { SpeechifyClient } from "@speechify/api";
 import { Octokit } from "@octokit/rest";
 import { isLanguage, isLearnerLanguage } from "../types/types";
+import { signIn } from "../scripts/sign-in";
 
 export const prerender = false;
 
@@ -170,8 +171,20 @@ async function generateAudio(text: string, lang: string, male: boolean){
   return res.audio_data;
 }
 
-export const POST = (async ({ request }) => {
+export const POST = (async ({ request, cookies, redirect }) => {
   const words_to_add: {words: string[], lang: string, male: boolean, translation_lang: string, category: string} = await request.json();
+  const password = cookies.get("password")?.value!;
+  const username = cookies.get("username")?.value!;
+  const result = await signIn(username, password);
+  if(result.password == null || result.username == null){
+    return new Response(
+      JSON.stringify({
+        message: "Failed to sign in",
+        error: true,
+        error_source: "account"
+      }),
+    );
+  }
   if(!isLanguage(words_to_add.lang)){
     return new Response(
       JSON.stringify({
