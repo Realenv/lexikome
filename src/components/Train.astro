@@ -12,7 +12,10 @@ const preferred_lang = Astro.cookies.get("preferred_lang")?.value ?? "english";
         <h2>Select the categories</h2>
         <div>
             <label for="search_cat">Search a category</label>
-            <input type="search" id="search_cat"/>
+            <div>
+                <input type="search" id="search_cat"/>
+                <div id="prediction_cat"> </div>
+            </div>
         </div>
         <div>
             <label for="num_cat">Select X number of words</label>
@@ -56,31 +59,31 @@ const preferred_lang = Astro.cookies.get("preferred_lang")?.value ?? "english";
                 <h2>Pick your language:</h2>
                 <div class="choose_lang">
                     <div>
-                        <label for="tr_lang_l"><TR width={18} class={"svg_lang"}/>tr</label>
+                        <label for="tr_lang_l"><TR width={18} id="tr_svg" class={"svg_lang"}/>tr</label>
                         {
                             preferred_lang == "turkish" ? <input type="checkbox" id="tr_lang_l" checked/> : <input type="checkbox" id="tr_lang_l" />
                         }
                     </div>
                     <div>
-                        <label for="en_lang_l"><EN width={18} class={"svg_lang"}/>en</label>
+                        <label for="en_lang_l"><EN width={18} id="en_svg" class={"svg_lang"}/>en</label>
                         {
                             preferred_lang == "english" ? <input type="checkbox" id="en_lang_l" checked/> : <input type="checkbox" id="en_lang_l" />
                         }
                     </div>
                     <div>
-                        <label for="ar_lang_l"><AR width={18} class={"svg_lang"}/>ar</label>
+                        <label for="ar_lang_l"><AR width={18} id="ar_svg" class={"svg_lang"}/>ar</label>
                         {
                             preferred_lang == "arabic" ? <input type="checkbox" id="ar_lang_l" checked/> : <input type="checkbox" id="ar_lang_l" />
                         }
                     </div>
                     <div>
-                        <label for="ru_lang_l"><RU width={18} class={"svg_lang"}/>ru</label>
+                        <label for="ru_lang_l"><RU width={18} id="ru_svg" class={"svg_lang"}/>ru</label>
                         {
                             preferred_lang == "russian" ? <input type="checkbox" id="ru_lang_l" checked/> : <input type="checkbox" id="ru_lang_l" />
                         }
                     </div>
                     <div>
-                        <label for="fr_lang_l"><FR width={18} class={"svg_lang"}/>fr</label>
+                        <label for="fr_lang_l"><FR width={18} id="tr_svg" class={"svg_lang"}/>fr</label>
                         {
                             preferred_lang == "french" ? <input type="checkbox" id="fr_lang_l" checked/> : <input type="checkbox" id="fr_lang_l" />
                         }
@@ -91,13 +94,89 @@ const preferred_lang = Astro.cookies.get("preferred_lang")?.value ?? "english";
         <h2>Select individual words</h2>
         <div>
             <label for="search_word">Search a word</label>
-            <input type="search" id="search_word"/>
+            <div>
+                <input type="search" id="search_word"/>
+                <div id="prediction_word"> </div>
+            </div>
         </div>
         <div style="justify-content:end">
             <button id="gotrain">Go training</button>
         </div>
     </div>
 </div>
+<script>
+const search_cat = document.getElementById("search_cat")!;
+const search_word = document.getElementById("search_word")!;
+
+async function get_prediction(is_cat: boolean, to_search: string, id: string){
+    const response = await fetch("/predict.json", {
+        method: "POST",
+        body: JSON.stringify({
+            is_cat: is_cat,
+            to_search: to_search
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    });
+    const result: { message: string,
+        error: boolean,
+        error_source: string,
+        predictions: Record<string, unknown>[] | null } = await response.json();
+    console.log(result);
+    if(result.predictions){
+        const predictions = document.getElementById(id)!;
+        predictions.innerHTML = "";
+        const matching_ids: {[key: string]: string} = {
+            "english": "en_svg",
+            "turkish": "tr_svg",
+            "arabic": "ar_svg",
+            "russian": "ru_svg",
+            "french": "fr_svg"
+        }
+        for(const pred of result.predictions){
+            const div = document.createElement("div");
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.gap = "11px";
+            div.style.padding = "5px 15px";
+
+
+
+            const flag = document.getElementById(matching_ids[pred.language as string])!.cloneNode(true);
+            (flag as HTMLElement).removeAttribute("id");
+            div.appendChild(flag);
+
+            const divWord = document.createElement("div");
+            divWord.innerHTML = pred.word as string;
+            div.appendChild(divWord);
+
+            const divCat = document.createElement("div");
+            divCat.classList.add("cat_div");
+            divCat.style.background = "#0001";
+            divCat.style.border = "1px solid #4449";
+            divCat.style.color = "#9999";
+            divCat.style.borderRadius = "15px";
+            divCat.style.padding = "2px 11px";
+            divCat.innerHTML = pred.category as string;
+            div.appendChild(divCat);
+
+            predictions.appendChild(div);
+        }
+        return predictions;
+    } else{
+        return "";
+    }
+}
+
+
+const search_word_pred = async ()=>{await get_prediction(false, (search_word as HTMLInputElement).value, "prediction_word")};
+let timeout: NodeJS.Timeout;
+search_word.oninput = ()=>{
+    clearTimeout(timeout);
+    timeout = setTimeout(search_word_pred, 250);
+}
+</script>
 <style>
 *{
     padding:0px;
@@ -106,7 +185,13 @@ const preferred_lang = Astro.cookies.get("preferred_lang")?.value ?? "english";
 #search_word{
     flex-grow: 1;
 }
-div:has(.select_cat){
+div:has(>#prediction_cat), div:has(>#prediction_word){
+    display:grid;
+    grid-template-columns: 1fr;
+    flex-grow: 1;
+    grid-template-rows: auto auto;
+}
+div:has(>.select_cat){
     display:flex;
     justify-content: center;
 }
@@ -222,5 +307,16 @@ input:focus, select:focus{
 	display:block;
 	padding:0px;
 	margin:0px;
+}
+#prediction_cat, #prediction_word{
+    background:hsl(var(--hue), 50%, 7%);
+    color:hsl(var(--hue), 50%, 50%);
+    padding:3px 6px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 5px 15px 3px #0002;
+    border-radius:2px;
+    font-family:'lato', sans-serif;
+    gap:5px;
 }
 </style>

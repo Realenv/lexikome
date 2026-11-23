@@ -32,6 +32,7 @@ import Close from '../assets/close.svg';
 			Train
 		</a>
 	</header>
+	<div id="user_pred_word"></div>
 	{show_subheader == "true" && <div class="subheader">
 		<div class="pick_lang">
 			<h2>Pick word's language:</h2>
@@ -87,17 +88,25 @@ import Close from '../assets/close.svg';
 </div>
 <script>
 import { reload_words } from "../scripts/reload_words";
-const search_btn = document.getElementById("search_btn");
-const close = document.getElementById("close");
-const search_input = document.getElementById("search_input");
-if (search_btn && search_input && close){
-	search_btn.onclick = ()=>{
-		search_input.classList.add("user_search");
-	};
-	close.onclick = ()=>{
-		search_input.classList.remove("user_search");
-	};
-}
+
+const search_btn = document.getElementById("search_btn")!;
+const close = document.getElementById("close")!;
+const search_input = document.getElementById("search_input")!;
+const search_word = document.getElementById("search_input")!;
+const pred_element = document.getElementById("user_pred_word")!;
+
+search_btn.onclick = async ()=>{
+	search_input.classList.add("user_search");
+	pred_element.style.display = "flex";
+	await get_prediction(false, (search_word as HTMLInputElement).value);
+};
+close.onclick = ()=>{
+	search_input.classList.remove("user_search");
+	pred_element.style.display = "none";
+};
+search_input.onclick = async ()=>{
+	await get_prediction(false, (search_word as HTMLInputElement).value);
+};
 
 if(document.getElementsByClassName("subheader").length != 0){
 	const en_lang = document.getElementById("en_lang")!;
@@ -170,6 +179,81 @@ if(document.getElementsByClassName("subheader").length != 0){
 		}
 	};
 }
+document.body.onclick = (e)=>{
+	if(!(pred_element.contains(e.target as Node) || search_input.contains(e.target as Node))){
+		pred_element.style.display = "none";
+	}
+}
+
+async function get_prediction(is_cat: boolean, to_search: string){
+    const response = await fetch("/predict.json", {
+        method: "POST",
+        body: JSON.stringify({
+            is_cat: is_cat,
+            to_search: to_search
+        }),
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    });
+    const result: { message: string,
+        error: boolean,
+        error_source: string,
+        predictions: Record<string, unknown>[] | null } = await response.json();
+    console.log(result);
+    if(result.predictions){
+        pred_element.innerHTML = "";
+        const matching_ids: {[key: string]: string} = {
+            "english": "en_svg",
+            "turkish": "tr_svg",
+            "arabic": "ar_svg",
+            "russian": "ru_svg",
+            "french": "fr_svg"
+        }
+        for(const pred of result.predictions){
+            const div = document.createElement("div");
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.alignItems = "center";
+            div.style.gap = "11px";
+            div.style.padding = "5px 15px";
+
+
+
+            const flag = document.getElementById(matching_ids[pred.language as string])!.cloneNode(true);
+            (flag as HTMLElement).removeAttribute("id");
+            div.appendChild(flag);
+
+            const divWord = document.createElement("div");
+            divWord.innerHTML = pred.word as string;
+            div.appendChild(divWord);
+
+            const divCat = document.createElement("div");
+            divCat.classList.add("cat_div");
+            divCat.style.background = "#0001";
+            divCat.style.border = "1px solid #4449";
+            divCat.style.color = "#9999";
+            divCat.style.borderRadius = "15px";
+            divCat.style.padding = "2px 11px";
+            divCat.innerHTML = pred.category as string;
+            div.appendChild(divCat);
+
+            pred_element.appendChild(div);
+        }
+		pred_element.style.display = "flex";
+        return pred_element;
+    } else{
+        return "";
+    }
+}
+
+
+const search_word_pred = async ()=>{await get_prediction(false, (search_word as HTMLInputElement).value)};
+let timeout: NodeJS.Timeout;
+search_word.oninput = ()=>{
+    clearTimeout(timeout);
+    timeout = setTimeout(search_word_pred, 250);
+}
 </script>
 <style>
 *{
@@ -214,6 +298,22 @@ if(document.getElementsByClassName("subheader").length != 0){
 .kome{
 	color: white;
 	text-shadow: hsl(var(--hue), 100%, 10%) 0px -5px 15px;
+}
+#user_pred_word{
+	position:fixed;
+	top:65px;
+	z-index: 15;
+	left:50%;
+	translate: -50%;
+    background:hsl(var(--hue), 50%, 7%);
+    color:hsl(var(--hue), 50%, 50%);
+    padding:3px 6px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0px 5px 15px 3px #0002;
+    border-radius:2px;
+    font-family:'lato', sans-serif;
+    gap:5px;
 }
 .lexikome{
 	font-family:"lato", sans-serif;
@@ -302,7 +402,7 @@ header{
 	outline-style: solid;
 }
 #search_btn{
-	display:flex;
+	display:none;
 	justify-content: center;
 	padding:5px;
 	align-items: center;
@@ -361,6 +461,9 @@ header{
 		top:21px;
 		right:15px;
 		display:block;
+	}
+	#search_btn{
+		display:flex;
 	}
 	.search:has(> .user_search){
 		position:fixed;
