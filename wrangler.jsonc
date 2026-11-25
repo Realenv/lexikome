@@ -55,7 +55,8 @@
 		"required": [
 			"GEMINI_API_KEY",
 			"SPEECHIFY_API_KEY",
-			"GITHUB_API_KEY"
+			"GITHUB_API_KEY",
+			"GROQ_API_KEY"
 		]
 	}
 }

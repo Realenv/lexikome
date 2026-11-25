@@ -18,6 +18,7 @@
     "@octokit/rest": "^22.0.1",
     "@speechify/api": "^5.0.0",
     "astro": "^7.4.10",
+    "openai": "^7.62.0",
     "wrangler": "^4.162.0"
   }
 }

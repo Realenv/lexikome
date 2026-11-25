@@ -105,15 +105,96 @@ const preferred_lang = Astro.cookies.get("preferred_lang")?.value ?? "english";
     </div>
 </div>
 <script>
-const search_cat = document.getElementById("search_cat")!;
 const search_word = document.getElementById("search_word")!;
+const predictions = document.getElementById("prediction_word")!;
+const en_lang = document.getElementById("en_lang")! as HTMLInputElement;
+const tr_lang = document.getElementById("tr_lang")! as HTMLInputElement;
+const ar_lang = document.getElementById("ar_lang")! as HTMLInputElement;
+const ru_lang = document.getElementById("ru_lang")! as HTMLInputElement;
+const fr_lang = document.getElementById("fr_lang")! as HTMLInputElement;
+const en_lang_l = document.getElementById("en_lang_l")! as HTMLInputElement;
+const tr_lang_l = document.getElementById("tr_lang_l")! as HTMLInputElement;
+const ar_lang_l = document.getElementById("ar_lang_l")! as HTMLInputElement;
+const ru_lang_l = document.getElementById("ru_lang_l")! as HTMLInputElement;
+const fr_lang_l = document.getElementById("fr_lang_l")! as HTMLInputElement;
 
-async function get_prediction(is_cat: boolean, to_search: string, id: string){
+
+let num_pred = 0;
+const search_word_pred = async () => {
+    await get_prediction(
+        num_pred,
+         (search_word as HTMLInputElement).value
+    )
+};
+const onchange_fn = async ()=>{
+    await search_word_pred();
+};
+en_lang.onchange = onchange_fn;
+tr_lang.onchange = onchange_fn;
+ar_lang.onchange = onchange_fn;
+ru_lang.onchange = onchange_fn;
+fr_lang.onchange = onchange_fn;
+en_lang_l.onchange = onchange_fn;
+tr_lang_l.onchange = onchange_fn;
+ar_lang_l.onchange = onchange_fn;
+ru_lang_l.onchange = onchange_fn;
+fr_lang_l.onchange = onchange_fn;
+
+const matching_ids: {[key: string]: string} = {
+    "english": "en_svg",
+    "turkish": "tr_svg",
+    "arabic": "ar_svg",
+    "russian": "ru_svg",
+    "french": "fr_svg"
+}
+
+function getAllWordLanguages(){
+    let languages = [];
+    if(en_lang.checked){
+        languages.push("english");
+    }
+    if(ar_lang.checked){
+        languages.push("arabic");
+    }
+    if(ru_lang.checked){
+        languages.push("russian");
+    }
+    if(tr_lang.checked){
+        languages.push("turkish");
+    }
+    if(fr_lang.checked){
+        languages.push("french");
+    }
+    return languages
+}
+function getAllLearnerLanguages(){
+    let languages = [];
+    if(en_lang_l.checked){
+        languages.push("english");
+    }
+    if(ar_lang_l.checked){
+        languages.push("arabic");
+    }
+    if(ru_lang_l.checked){
+        languages.push("russian");
+    }
+    if(tr_lang_l.checked){
+        languages.push("turkish");
+    }
+    if(fr_lang_l.checked){
+        languages.push("french");
+    }
+    return languages
+}
+async function get_prediction(num: number, to_search: string, removeWords: boolean = true){
     const response = await fetch("/predict.json", {
         method: "POST",
         body: JSON.stringify({
-            is_cat: is_cat,
-            to_search: to_search
+            to_search: to_search,
+            num: num,
+            lang: getAllWordLanguages(),
+            lang_l: getAllLearnerLanguages(),
+            categories: ["realenv"]
         }),
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -122,17 +203,12 @@ async function get_prediction(is_cat: boolean, to_search: string, id: string){
     const result: { message: string,
         error: boolean,
         error_source: string,
-        predictions: Record<string, unknown>[] | null } = await response.json();
+        predictions: Record<string, unknown>[] | null,
+        count: number } = await response.json();
     console.log(result);
     if(result.predictions){
-        const predictions = document.getElementById(id)!;
-        predictions.innerHTML = "";
-        const matching_ids: {[key: string]: string} = {
-            "english": "en_svg",
-            "turkish": "tr_svg",
-            "arabic": "ar_svg",
-            "russian": "ru_svg",
-            "french": "fr_svg"
+        if(removeWords){
+            predictions.innerHTML = "";
         }
         for(const pred of result.predictions){
             const div = document.createElement("div");
@@ -140,8 +216,6 @@ async function get_prediction(is_cat: boolean, to_search: string, id: string){
             div.style.justifyContent = "space-between";
             div.style.gap = "11px";
             div.style.padding = "5px 15px";
-
-
 
             const flag = document.getElementById(matching_ids[pred.language as string])!.cloneNode(true);
             (flag as HTMLElement).removeAttribute("id");
@@ -163,14 +237,21 @@ async function get_prediction(is_cat: boolean, to_search: string, id: string){
 
             predictions.appendChild(div);
         }
+        if(num_pred*5 <= result.count && result.count != 0){
+            const other = document.createElement("div");
+            other.innerHTML = "show more";
+            other.onclick = async ()=>{
+                num_pred += 1;
+                await get_prediction(num_pred, (search_word as HTMLInputElement).value, false);
+            }
+            predictions.appendChild(other);
+        }
         return predictions;
     } else{
         return "";
     }
 }
 
-
-const search_word_pred = async ()=>{await get_prediction(false, (search_word as HTMLInputElement).value, "prediction_word")};
 let timeout: NodeJS.Timeout;
 search_word.oninput = ()=>{
     clearTimeout(timeout);
