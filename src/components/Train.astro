@@ -205,7 +205,6 @@ async function get_prediction(num: number, to_search: string, removeWords: boole
         error_source: string,
         predictions: Record<string, unknown>[] | null,
         count: number } = await response.json();
-    console.log(result);
     if(result.predictions){
         if(removeWords){
             predictions.innerHTML = "";

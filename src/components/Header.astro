@@ -200,7 +200,6 @@ async function get_prediction(is_cat: boolean, to_search: string){
         error: boolean,
         error_source: string,
         predictions: Record<string, unknown>[] | null } = await response.json();
-    console.log(result);
     if(result.predictions){
         pred_element.innerHTML = "";
         const matching_ids: {[key: string]: string} = {

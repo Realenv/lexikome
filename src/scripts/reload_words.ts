@@ -1,5 +1,4 @@
 export async function reload_words(url_to_fetch: URL){
-    console.log(url_to_fetch.href);
     const { page_count, words }: {page_count: number, words: {category:string, context_aware_meanings:string, language:string, learner_language:string, word:string}[]} = await (await fetch(url_to_fetch)).json();
     const container = document.getElementById("container")!;
     container.innerHTML = "";

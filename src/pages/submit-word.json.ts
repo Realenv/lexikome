@@ -25,11 +25,9 @@ const alphabet_matching: {[key: string]: string} = {
   "turkish": turkish_alphabet.join(""),
   "russian": russian_alphabet.join("")
 };
-const get_pattern = (language: string)=>{
-  const pattern = `^[${alphabet_matching[language].concat(universal_punctiation.join(""))}]+$`;
-  console.log(pattern);
-  return pattern;
-};
+const get_pattern = (language: string)=>(
+  `^[${alphabet_matching[language].concat(universal_punctiation.join(""))}]+$`
+);
 const jsonWordSchema = (word_language: string, learner_language: string, words: string[], string_pattern: string, string_pattern_l: string) => (
   {
     "type": "json_schema",
@@ -156,8 +154,6 @@ export const POST = (async ({ request, cookies }) => {
       }
       break;
     } catch(e){
-      if(model[0] == "openai"){
-      console.log(e);}
       continue;
     }
   }
