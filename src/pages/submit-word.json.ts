@@ -30,141 +30,13 @@ const get_pattern = (language: string)=>{
   console.log(pattern);
   return pattern;
 };
-const get_conjugation_from_pronouns_and_pattern = (tense: string, language: string, pronouns: string[], string_pattern: string) => {
-  let all_pairs: {[key: string]: {[key: string]: string}} = {};
-  for(const pronoun of pronouns){
-    all_pairs[pronoun] = {
-      "type": "string",
-      "title": `The conjugated ${language} verb`,
-      "description": `The conjugated ${language} verb in \"${tense}\" tense with the \"${pronoun}\" pronoun`,
-      "pattern": string_pattern
-    };
-  }
-  return all_pairs
-}
-const get_conjugation_by_tenses = (language: string)=>{
-  Object.entries(pronouns_by_tenses[language]).forEach(tense_with_pronouns => ({
-    "type": "object",
-    "title": `Conjugation of the verb in ${tense_with_pronouns[0]}`,
-    "description": `The full conjugation of the specified verb in ${tense_with_pronouns[0]} tense with the following pronouns: ${tense_with_pronouns[1].join(",")}`,
-    "properties": {
-      "conjugation": {
-        "type": "object",
-        "title": `Pairs of pronouns with conjugated verbs in ${language}`,
-        "description": `Pairs of pronons with conjugated verbs in ${language} in ${tense_with_pronouns[0]} tense`,
-        "properties": get_conjugation_from_pronouns_and_pattern(tense_with_pronouns[0], language, tense_with_pronouns[1], get_pattern(language)),
-        "additionalProperties": false,
-        "required": tense_with_pronouns[1],
-      },
-    },
-    "additionalProperties": false,
-    "required": ["conjugation"],
-  }))
-}
 const jsonWordSchema = (word_language: string, learner_language: string, words: string[], string_pattern: string, string_pattern_l: string) => (
   {
     "type": "json_schema",
     "description": `Full descriptive flashcards of the words: ${"\""+words.join("\", \"")+"\""} in ${word_language} explained in ${learner_language}`,
     "strict": true,
     "name": "word_flashcards",
-    "schema": {
-      "type": "object",
-      "description": `Some full descriptive flashcards of the words: ${"\""+words.join("\", \"")+"\""} in ${word_language} explained in ${learner_language}`,
-      "title": "Full descriptive flashcards",
-      "properties": {
-        "words": {
-          "type": "array",
-          "title": "All descriptive flashcards of specified words",
-          "description": `Some full descriptive flashcards of the words: ${"\""+words.join("\", \"")+"\""} in ${word_language} explained in ${learner_language}`,
-          "items": {
-            "type": "object",
-            "title": `A full descriptive flashcard of a word from these ones: ${"\""+words.join("\", \"")+"\""}`,
-            "desciption": `A full descriptive flashcard of a specified word in ${word_language} explained in ${learner_language}`,
-            "properties": {
-              "raw_word": { "type": "string", "pattern": string_pattern, "description": "The raw non translated word", "title": "Raw word", "enum": words },
-              "context_aware_meanings": {
-                "title": "The meanings of the specific word",
-                "description": `single or multiple pair of examples in ${word_language} and translations in ${learner_language}, the number of examples is depending on the number of meanings the specified word has`,
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "title": "An example and his translation",
-                  "description": `An example in ${word_language}, and his translation in ${learner_language}, it is a specific use case of the ${word_language} word in a specific example`,
-                  "properties": {
-                    "senses": {
-                      "type": "array",
-                      "title": "senses of the word",
-                      "description": `All the most accurate ${learner_language} words describing the ${word_language} word in a specific use case, depending on the meaning in the illustrated example, it can be one or more`,
-                      "items": {
-                        "title": `The specific sense of the ${word_language} word in ${learner_language}`,
-                        "desciption": `The specific sense of the ${word_language} word depending on the provided example's context`,
-                        "type": "string",
-                        "pattern": string_pattern_l
-                      },
-                      "minItems": 1,
-                    },
-                    "raw_example": {
-                      "type": "string",
-                      "description": `A ${word_language} example of a specific use case of the specified word where the meaning is not the same that his use case in an another context`,
-                      "title": `Non-translated ${word_language} example`,
-                      "pattern": string_pattern
-                    },
-                    "pos_word_start_index_raw_example": {
-                      "type": "number",
-                      "maximum": 300,
-                      "minimum": 0,
-                      "title": `Start position of the ${word_language} word`,
-                      "description": `The inclusive start position index of the ${word_language} word in the raw example using zero-based indexing`
-                    },
-                    "pos_word_end_index_raw_example": {
-                      "type": "number",
-                      "maximum": 300,
-                      "minimum": 1,
-                      "title": `End position of the ${word_language} word`,
-                      "description": `The non inclusive end position index of the ${word_language} word in the raw example using zero-based indexing`
-                    },
-                    "translated_example": {
-                      "type": "string",
-                      "description": `The translation of the raw ${word_language} example in ${learner_language}`,
-                      "title": `${learner_language} translated example`,
-                      "pattern": string_pattern_l
-                    },
-                    "pos_word_start_index_translated_example": {
-                      "type": "number",
-                      "maximum": 300,
-                      "minimum": 0,
-                      "title": `Start position of the ${learner_language} word`,
-                      "description": `The start inclusive position index of the ${learner_language} word in the ${learner_language} translated example using zero-based indexing`
-                    },
-                    "pos_word_end_index_translated_example": {
-                      "type": "number",
-                      "maximum": 300,
-                      "minimum": 1,
-                      "title": `End position of the ${learner_language} word`,
-                      "description": `The end non inclusive position index of the ${learner_language} word in the ${learner_language} translated example using zero-based indexing`                    },
-                  },
-                  "required": ["senses", "raw_example", "pos_word_start_index_raw_example", "pos_word_end_index_raw_example", "pos_word_start_index_translated_example", "pos_word_end_index_translated_example", "translated_example"],
-                  "additionalProperties": false
-                },
-                "minItems": 1,
-              },
-              "conjugation": {
-                "title": `Conjugation of the verbs`,
-                "description": `The full conjugation of the verbs extracted from these ${word_language} words: ${"\""+words.join("\", \"")+"\""} in the following tenses: ${Object.entries(pronouns_by_tenses[word_language]).join(", ")}`,
-                "type": ["array", "null"],
-                "items": get_conjugation_by_tenses(word_language),
-              }
-            },
-            "additionalProperties": false,
-            "required": ["context_aware_meanings", "raw_word", "conjugation"]
-          },
-          "minItems": words.length,
-          "maxItems": words.length
-        },
-      },
-      "required": ["words"],
-      "additionalProperties": false
-    }
+    "schema": {}
   }
 );
 
@@ -188,21 +60,6 @@ async function getMeanings(word: string[], lang: string, model: string, translat
   })).text!;
 }
 async function getMeaningsFromOpenAI(word: string[], lang: string, model: string, translation_lang: string){
-  return (await client.responses.create({
-    model: model,
-    max_output_tokens: 4000,
-    input: "Give full explenations for theses words: \""+word.join("\", \"")+
-    "\", if the word is a verb you give the conjugation"+
-    "\nall of this respecting the laws of the json output, the translations are in "+translation_lang+
-    "\nthe conjugation part of the output is in "+lang+
-    ",\ngive all the possible meanings of the word,"+
-    "\ngive ALL THE POSSIBLE TENSES AND PRONOUNS in the conjugation section, take care about the word's language's specifications, do not forget anything"+
-    "\nwhen you give an example vary your words, and give the start index of the word and the end index of the word's delimitation in the both examples."+
-    "\nBe very careful about the positions, they should work with the JS based 0-indexed array system",
-    instructions: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other language`,
-    temperature: 0.1,
-    text: { format: jsonWordSchema(lang, translation_lang, word, get_pattern(lang), get_pattern(translation_lang)) as ResponseFormatTextJSONSchemaConfig }
-  })).output_text;
   return (await client.responses.create({
     model: model,
     max_output_tokens: 4000,
