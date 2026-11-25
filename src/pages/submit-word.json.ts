@@ -126,13 +126,13 @@ export const POST = (async ({ request, cookies }) => {
       }),
     );
   }
-  const list_of_models: ["openai" | "gemini", string][] = [["gemini", "geamini-3.5-flash-lite"],
+  const list_of_models: ["openai" | "gemini", string][] = [["gemini", "gemini-3.5-flash-lite"],
                           ["openai", "openai/gpt-oss-120b"],
-                          ["gemini", "geamini-3.1-flash-lite"],
+                          ["gemini", "gemini-3.1-flash-lite"],
                           ["openai", "qwen/qwen3.8-27b"],
-                          ["gemini", "geamini-4-hydrogen"],
+                          ["gemini", "gemini-4-hydrogen"],
                           ["openai", "openai/gpt-oss-20b"],
-                          ["gemini", "geamini-3.8-flash"]];
+                          ["gemini", "gemini-3.8-flash"]];
   let context_aware_meanings = null;
   let madeWithOpenAI = null;
   for(const model of list_of_models){
