@@ -6,8 +6,8 @@ import { Octokit } from "@octokit/rest";
 import { isLanguage, isLearnerLanguage } from "../types/types";
 import { signIn } from "../scripts/sign-in";
 import OpenAI from 'openai';
-import { arabic_alphabet, english_alphabet, french_alphabet, russian_alphabet, turkish_alphabet, universal_punctiation } from "../types/alphabets-ai-generated";
-import { pronouns_by_tenses } from "../types/conjugation-ai-generated";
+import { get_input, get_pattern, jsonWordSchema } from "../scripts/get_schema";
+import { string } from "astro:schema";
 const client = new OpenAI({
   apiKey: env.GROQ_API_KEY,
   baseURL:"https://api.groq.com/openai/v1"
@@ -18,60 +18,34 @@ export const prerender = false;
 const ai = new GoogleGenAI({apiKey: env.GEMINI_API_KEY});
 const octokit = new Octokit({ auth: env.GITHUB_API_KEY });
 
-const alphabet_matching: {[key: string]: string} = {
-  "english": english_alphabet.join(""),
-  "arabic": arabic_alphabet.join(""),
-  "french": french_alphabet.join(""),
-  "turkish": turkish_alphabet.join(""),
-  "russian": russian_alphabet.join("")
-};
-const get_pattern = (language: string)=>(
-  `^[${alphabet_matching[language].concat(universal_punctiation.join(""))}]+$`
-);
-const jsonWordSchema = (word_language: string, learner_language: string, words: string[], string_pattern: string, string_pattern_l: string) => (
-  {
-    "type": "json_schema",
-    "description": `Full descriptive flashcards of the words: ${"\""+words.join("\", \"")+"\""} in ${word_language} explained in ${learner_language}`,
-    "strict": true,
-    "name": "word_flashcards",
-    "schema": {}
-  }
-);
 
-async function getMeanings(word: string[], lang: string, model: string, translation_lang: string){
+async function getMeanings(words: string[], lang: string, model: string, translation_lang: string){
   return (await ai.models.generateContent({
     model: model,
-    contents: "Give full explenations for theses words: \""+word.join("\", \"")+
-    "\", if the word is a verb you give the conjugation"+
-    "\nall of this respecting the laws of the json output, the translations are in learner's language, learner's language is "+translation_lang+
-    "\nthe conjugation part of the output is in "+lang+
-    ",\ngive all the possible meanings of the word,"+
-    "\ngive ALL THE POSSIBLE TENSES AND PRONOUNS in the conjugation section, take care about the word's language's specifications, do not forget anything"+
-    "\nwhen you give an example vary your words, and give the start index of the word and the end index of the word's delimitation in the both examples."+
-    "\nBe very careful about the positions, they should work with the JS based 0-indexed array system",
+    contents: get_input(lang, translation_lang, words, "gemini"),
     config: {
       responseMimeType: "application/json",
       temperature: 0.1,
-      responseJsonSchema: jsonWordSchema(lang, translation_lang, word, get_pattern(lang), get_pattern(translation_lang)).schema.properties.words,
+      responseJsonSchema: jsonWordSchema(lang, translation_lang, "gemini", words),
       systemInstruction: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other language`,
     }
   })).text!;
 }
-async function getMeaningsFromOpenAI(word: string[], lang: string, model: string, translation_lang: string){
-  return (await client.responses.create({
-    model: model,
+async function getMeaningsFromOpenAI(words: string[], lang: string, model: [string, string], translation_lang: string){
+  const openai_output = (await client.responses.create({
+    model: model[0],
     max_output_tokens: 4000,
-    input: "Give full explenations for theses words: \""+word.join("\", \"")+
-    "\", if the word is a verb you give the conjugation"+
-    "\nall of this respecting the laws of the json output, the translations are in "+translation_lang+
-    "\nthe conjugation part of the output is in "+lang+
-    ",\ngive all the possible meanings of the word,"+
-    "\ngive ALL THE POSSIBLE TENSES AND PRONOUNS in the conjugation section, take care about the word's language's specifications, do not forget anything"+
-    "\nwhen you give an example vary your words, and give the start index of the word and the end index of the word's delimitation in the both examples."+
-    "\nBe very careful about the positions, they should work with the JS based 0-indexed array system",
+    input: get_input(lang, translation_lang, words, "openai"),
     instructions: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other language`,
     temperature: 0.1,
-    text: { format: jsonWordSchema(lang, translation_lang, word, get_pattern(lang), get_pattern(translation_lang)) as ResponseFormatTextJSONSchemaConfig }
+  })).output_text;
+  return (await client.responses.create({
+    model: model[1],
+    max_output_tokens: 4000,
+    input: get_input(lang, translation_lang, words, "qwen", openai_output),
+    instructions: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other language`,
+    temperature: 0.1,
+    text: { format: jsonWordSchema(lang, translation_lang, "qwen", words) as ResponseFormatTextJSONSchemaConfig }
   })).output_text;
 }
 async function generateAudio(text: string, lang: string, male: boolean){
@@ -124,12 +98,12 @@ export const POST = (async ({ request, cookies }) => {
       }),
     );
   }
-  const list_of_models: ["openai" | "gemini", string][] = [["gemini", "gemini-3.5-flash-lite"],
-                          ["openai", "openai/gpt-oss-120b"],
+  const list_of_models: (["gemini", string] | ["openai", [string, string]])[] = [["gemini", "gemini-3.5-flash-lite"],
+                          ["openai", ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]],
                           ["gemini", "gemini-3.1-flash-lite"],
-                          ["openai", "qwen/qwen3.8-27b"],
+                          ["openai", ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]],
                           ["gemini", "gemini-4-hydrogen"],
-                          ["openai", "openai/gpt-oss-20b"],
+                          ["openai", ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]],
                           ["gemini", "gemini-3.8-flash"]];
   let context_aware_meanings = null;
   let madeWithOpenAI = null;
