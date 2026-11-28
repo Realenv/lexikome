@@ -14,110 +14,104 @@ export const get_pattern = (language: string)=>(
 );
 export const jsonWordSchema = (word_language: string, learner_language: string, source: AIProviderSource, words: string[]) => {
   const joined_words = "\""+words.join("\", \"")+"\"";
+  let properties = {};
+  for(const word of words){
+    Object.assign(properties, {[word]: {
+      "type": "object",
+      "title": `flashcard of the word \"${word}\"`,
+      "description": `The meanings of the ${word_language} word: \"${word}\", and his conjugation if it is a verb, ${get_conjugation_input(word_language)}`,
+      "properties": {
+        "context_aware_pairs_of_examples": {
+          "type": "array",
+          "title": `The all possible pairs of examples describing all the possible meanings for the ${word_language} word: \"${word}\"`,
+          "description": `The all possible pairs of examples describing all the possible meanings for the ${word_language} word: \"${word}\", where each meaning describe a unique sense that the others meanings do not describe, so the word become context aware meaning, each pair of example is composed of an original example in ${word_language} and an accurate translation in ${learner_language}`,
+          "items": {
+            "type": "object",
+            "description": `A pair of examples describing a possible meaning for the ${word_language} word: \"${word}\", where the meaning describe a unique sense that the others meanings do not describe, so the word become context aware meaning, the pair of example is composed of an original example in ${word_language} and an accurate translation in ${learner_language}`,
+            "title": "A pair of examples describing a possible meaning for the ${word_language} word: \"${word}\"",
+            "properties": {
+              "unique_senses": {
+                "type": "array",
+                "title": "All the possible senses in the specified example",
+                "description": `All the possible corresponding ${learner_language} words to describe the ${word_language} word: \"${word}\" in the choosed ${word_language} example`,
+                "minItems": 1,
+                "maxItems": 5,
+                "items": {
+                  "type": "string",
+                  "title": "A possible sense that fit to the specified example's context meaning",
+                  "description": `A possible corresponding ${learner_language} word to describe the ${word_language} word: \"${word}\" in the choosed ${word_language} example`,
+                  "pattern": get_pattern(learner_language)
+                }
+              },
+              "original_example": {
+                "type": "string",
+                "title": `The original ${word_language} example describing a possible meaning for the ${word_language} word: \"${word}\"`,
+                "pattern": get_pattern(word_language)
+              },
+              "translated_example": {
+                "type": "string",
+                "title": `The ${learner_language} translated example describing a possible meaning for the ${word_language} word: \"${word}\"`,
+                "pattern": get_pattern(learner_language)
+              },
+              "pos_word_start_in_original_example": {
+                "type": "number",
+                "description": `The start index position of the corresponding word in the original ${word_language} example for the ${word_language} word: \"${word}\" (using the JS zero based indexing principle, spaces are included as characters)`,
+                "title": `The start position of the word ${word} in the ${word_language} example`,
+                "minimum": 0,
+                "maximum": 500
+              },
+              "pos_word_end_in_original_example": {
+                "type": "number",
+                "description": `The end inclusive index position of the corresponding word in the original ${word_language} example for the ${word_language} word: \"${word}\" (using the JS zero based indexing principle, spaces are included as characters)`,
+                "title": `The end position of the word ${word} in the ${word_language} example`,
+                "minimum": 0,
+                "maximum": 500
+              },
+              "pos_word_start_in_translated_example": {
+                "type": "number",
+                "description": `The start index position of the corresponding word in the original ${learner_language} example for the ${word_language} word: \"${word}\" (using the JS zero based indexing principle, spaces are included as characters)`,
+                "title": `The start position of the word ${word} in the ${learner_language} example`,
+                "minimum": 0,
+                "maximum": 500
+              },
+              "pos_word_end_in_translated_example": {
+                "type": "number",
+                "description": `The end inclusive index position of the corresponding word in the original ${learner_language} example for the ${word_language} word: \"${word}\" (using the JS zero based indexing principle, spaces are included as characters)`,
+                "title": `The end position of the word ${word} in the ${learner_language} example`,
+                "minimum": 0,
+                "maximum": 500
+              }
+            },
+            "required": [
+              "unique_senses",
+              "original_example",
+              "translated_example",
+              "pos_word_start_in_original_example",
+              "pos_word_end_in_original_example",
+              "pos_word_start_in_translated_example",
+              "pos_word_end_in_translated_example"
+            ],
+            "additionnalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 15
+        },
+        "conjugation": {
+          "type": ["object", "null"],
+          "title": `The full conjugation of the word ${word} if it is a verb`,
+          "description": `The full conjugation of the word ${word} if it is a verb ${get_conjugation_input(word_language)}`,
+          "properties": get_conjugation_pattern(word_language, word),
+          "required": Object.keys(pronouns_by_tenses[word_language])
+        }
+      },
+      "additionnalProperties": false
+    }});
+  }
   const schema = {
     "type": "object",
-    "title": "All the words",
-    "properties": {
-      "all_words": {
-        "type": "array",
-        "title": "All the words",
-        "maxItems": words.length,
-        "minItems": words.length,
-        "items": {
-          "type": "object",
-          "title": `flashcard of the word`,
-          "description": `The meanings of the ${word_language} word, and his conjugation if it is a verb, otherwise null`,
-          "properties": {
-            "raw_word": {
-              "type": "string",
-              "title": "The word",
-              "enum": words,
-              "pattern": get_pattern(word_language)
-            },
-            "context_aware_pairs_of_examples": {
-              "type": "array",
-              "title": `The all possible pairs of examples describing all the possible meanings`,
-              "items": {
-                "type": "object",
-                "description": `A pair of examples describing a possible meaning for the word, where the meaning describe a unique sense that the others meanings do not describe, the pair of example is composed of an original example in ${word_language} and an accurate translation in ${learner_language}`,
-                "title": "A pair of examples describing a possible meaning for the word",
-                "properties": {
-                  "unique_senses": {
-                    "type": "array",
-                    "title": "All the possible senses of the word in the specified example",
-                    "minItems": 1,
-                    "maxItems": 5,
-                    "items": {
-                      "type": "string",
-                      "title": "A possible sense that fit to the specified example's context meaning",
-                      "pattern": get_pattern(learner_language)
-                    }
-                  },
-                  "original_example": {
-                    "type": "string",
-                    "title": `The original ${word_language} example`,
-                    "pattern": get_pattern(word_language)
-                  },
-                  "translated_example": {
-                    "type": "string",
-                    "title": `The ${learner_language} translated example`,
-                    "pattern": get_pattern(learner_language)
-                  },
-                  "pos_word_start_in_original_example": {
-                    "type": "number",
-                    "title": `The start position of the word in the ${word_language} example`,
-                    "minimum": 0,
-                    "maximum": 500
-                  },
-                  "pos_word_end_in_original_example": {
-                    "type": "number",
-                    "title": `The end position of the word in the ${word_language} example`,
-                    "minimum": 0,
-                    "maximum": 500
-                  },
-                  "pos_word_start_in_translated_example": {
-                    "type": "number",
-                    "title": `The start position of the word in the ${learner_language} translated example`,
-                    "minimum": 0,
-                    "maximum": 500
-                  },
-                  "pos_word_end_in_translated_example": {
-                    "type": "number",
-                    "title": `The end position of the word in the ${learner_language} translated example`,
-                    "minimum": 0,
-                    "maximum": 500
-                  }
-                },
-                "additionalProperties": false,
-                "required": [
-                  "unique_senses",
-                  "original_example",
-                  "translated_example",
-                  "pos_word_start_in_original_example",
-                  "pos_word_end_in_original_example",
-                  "pos_word_start_in_translated_example",
-                  "pos_word_end_in_translated_example"
-                ],
-              },
-              "minItems": 1,
-              "maxItems": 15,
-            },
-            "conjugation": {
-              "type": ["array", "null"],
-              "title": `Conjugation of the word if it is a verb`,
-              "description": `Conjugation of the word if it is a verb, otherwise null`,
-              "items": get_conjugation_pattern(word_language),
-              "minItems": 1,
-              "maxItems": Object.keys(pronouns_by_tenses[word_language]).length
-            }
-          },
-          "additionalProperties": false,
-          "required": ["context_aware_pairs_of_examples", "conjugation", "raw_word"]
-        }
-      }
-    },
-    "additionalProperties": false,
-    "required": ["all_words"]
+    "properties": properties,
+    "additionnalProperties": false,
+    "required": words
   };
   if(source == "openai" || source == "qwen"){
     return {
@@ -127,56 +121,30 @@ export const jsonWordSchema = (word_language: string, learner_language: string, 
       "name": "word_flashcards",
       "schema": schema
     };
-  } else {
+  } else if(source == "gemini"){
     return schema
   }
 };
-export const get_conjugation_pattern = (word_language: string)=>{
-  let pronouns = new Set<string>([]);
-  for(const tense of Object.values(pronouns_by_tenses[word_language])){
-    for(const pronoun of tense){
-      pronouns.add(pronoun);
-    }
-  }
-  let pattern = {
-      "type": "object",
-      "title": `Conjugation of the ${word_language} verb`,
-      "properties": {
-        "tense_name": {
-          "type": "string",
-          "pattern": get_pattern(word_language),
-          "title": "Name of the tense",
-          "enum": Object.keys(pronouns_by_tenses[word_language])
-        },
-        "pronoun_verb_pairs": {
-          "type": "array",
-          "minItems": 0,
-          "title": "Pairs of pronouns with corresponding conjugated verbs",
-          "maxItems": [...pronouns].length,
-          "items": {
-            "type": "object",
-            "title": "Pair of pronoun with the conjugated verb",
-            "properties": {
-              "pronoun": {
-                "type": "string",
-                "pattern": get_pattern(word_language),
-                "title": "The pronoun",
-                "enum": [...pronouns]
-              },
-              "verb": {
-                "title": "The conjugated verb",
-                "type": "string",
-                "pattern": get_pattern(word_language),
-              }
-            },
-            "required": ["verb", "pronoun"],
-            "additionalProperties": false
-          }
+export const get_conjugation_pattern = (word_language: string, word: string)=>{
+    let pattern = {};
+    for(const tense of Object.entries(pronouns_by_tenses[word_language])){
+        let pronouns = {};
+        for(const pronoun of tense[1]){
+          Object.assign(pronouns, {[pronoun]: {
+            "title": `Conjugation of the verb ${word} in the ${tense[0]} tense with the ${pronoun} pronoun`,
+            "description": `The conjugation of the verb ${word} in the ${tense[0]} tense with the ${pronoun} pronoun`,
+            "type": "string",
+            "pattern": get_pattern(word_language)
+          }});
         }
-      },
-      "required": ["tense_name", "pronoun_verb_pairs"],
-      "additionalProperties": false
-    };
+        Object.assign(pattern, {[tense[0]]: {
+          "type": "object",
+          "title": `The conjugation of the verb ${word} in the ${tense[0]} tense`,
+          "description": `The conjugation of the verb ${word} in the ${tense[0]} tense for the following pronouns: \"${tense[1].join("\", \"")}\"`,
+          "properties": pronouns,
+          "required": tense[1]
+        }});
+    }
     return pattern
 }
 export const get_conjugation_input = (word_language: string)=>{
@@ -184,7 +152,13 @@ export const get_conjugation_input = (word_language: string)=>{
     input += "if the word is a verb you give the conjugation of the word in the following tenses and their corresponding pronouns:\n";
     let first = true;
     for(const tense of Object.entries(pronouns_by_tenses[word_language])){
-      `The \"${tense[0]}\" tense with the following pronouns: "${tense[1].join("\", \"")}",\n`;
+        if(first){
+            input += `Conjugate the verb in ${tense[0]} with the following pronouns: "${tense[1].join("\", \"")}",\n`;
+        }else{
+            input += `And you conjugate the verb in ${tense[0]} with the following pronouns: "${tense[1].join("\", \"")}",\n`;
+
+        }
+        first = false;
     }
     return input
 }
@@ -193,25 +167,27 @@ export const get_conjugation_input = (word_language: string)=>{
 export const get_input = (word_language: string, translation_lang: string, words: string[], source: AIProviderSource, openai_ouput: string | null = null) => {
   if(source == "gemini"){
     return   `Give full explenations for theses words: \"${words.join("\", \"")}\",
-the translations are in ${translation_lang},
-${get_conjugation_input(translation_lang)}
-give all the possible meanings of the word with pairs example composed of the original example and the translated example, and give the index position of the word and its end position in both the translated and the original example,
-give the start index of the word and the end index of the word's delimitation in the both examples.
-Be very careful about the indexes, they should work with the JS zero based indexing`
+              the translations are in ${translation_lang},
+              ${get_conjugation_input(translation_lang)}
+              give all the possible meanings of the word with pairs example composed of the original example and the translated example, and give the index position of the word and its end position in both the translated and the original example,
+              give the start index of the word and the end index of the word's delimitation in the both examples.
+              Be very careful about the indexes, they should work with the JS zero based indexing`
   } else if(source == "openai"){
-    return `Give full explenations for theses words: \"${words.join("\", \"")}\",
-give all the possible meanings of the word with pairs example composed of the original example and the translated example,
-return the meanings in csv format with the following columns: senses, ${word_language}_example, ${translation_lang}_translated_example
-${get_conjugation_input(translation_lang)}
-return the conjugation in csv format with the following columns: tense_name, pronoun, conjugated_verb`
+    return   `Give full explenations for theses words: \"${words.join("\", \"")}\",
+              the translations are in ${translation_lang},
+              ${get_conjugation_input(translation_lang)}
+              give all the possible meanings of the word with pairs example composed of the original example and the translated example, and give the index position of the word and its end position in both the translated and the original example,
+              give the start index of the word and the end index of the word's delimitation in the both examples.
+              Be very careful about the indexes, they should work with the JS zero based indexing
+              Return your response in json format, respecting the following json schema: ${JSON.stringify(jsonWordSchema(word_language, translation_lang, source, words), null, 1)}`
   } else if(source == "qwen" && openai_ouput != null){
-    return `Give full explenations for theses words: \"${words.join("\", \"")}\",
-the translations are in ${translation_lang},
-${get_conjugation_input(translation_lang)}
-give all the possible meanings of the word with pairs example composed of the original example and the translated example, and give the index position of the word and its end position in both the translated and the original example,
-give the start index of the word and the end index of the word's delimitation in the both examples.
-Be very careful about the indexes, they should work with the JS zero based indexing,
-All of this based on this ai provided csv output: "${openai_ouput}"`
+    return   `Give full explenations for theses words: \"${words.join("\", \"")}\",
+              the translations are in ${translation_lang},
+              ${get_conjugation_input(translation_lang)}
+              give all the possible meanings of the word with pairs example composed of the original example and the translated example, and give the index position of the word and its end position in both the translated and the original example,
+              give the start index of the word and the end index of the word's delimitation in the both examples.
+              Be very careful about the indexes, they should work with the JS zero based indexing,
+              All of this based on this ai provided output: "${openai_ouput}"`
   } else{
     throw new Error("The source is Qwen but the openai output is not provided");
   }

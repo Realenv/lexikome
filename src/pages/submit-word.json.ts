@@ -26,65 +26,27 @@ async function getMeanings(words: string[], lang: string, model: string, transla
     config: {
       responseMimeType: "application/json",
       temperature: 0.1,
-      tools: [{googleSearch: {}}],
       responseJsonSchema: jsonWordSchema(lang, translation_lang, "gemini", words),
       systemInstruction: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other language`,
-    },
+    }
   })).text!;
 }
 async function getMeaningsFromOpenAI(words: string[], lang: string, model: [string, string], translation_lang: string){
-  console.log("\n\n\n openai start")
   const openai_output = (await client.responses.create({
     model: model[0],
     max_output_tokens: 4000,
     input: get_input(lang, translation_lang, words, "openai"),
-    instructions: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other languages`,
+    instructions: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other language`,
     temperature: 0.1,
-    tools: [
-      {
-        "type": "browser_search" as any
-      }
-    ]
   })).output_text;
-  console.log(openai_output);
-  console.log("\n\n\n openai end qwen start \n\n\n")
-  const qwen_output = (await client.responses.create({
+  return (await client.responses.create({
     model: model[1],
     max_output_tokens: 4000,
     input: get_input(lang, translation_lang, words, "qwen", openai_output),
-    instructions: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other languages`,
+    instructions: `You are a native ${lang} people explaining in accurate words the meaning of a word in a foreign language, respecting the specificities of the foreign language and the cultural and lexical differences between learner's language and other language`,
     temperature: 0.1,
     text: { format: jsonWordSchema(lang, translation_lang, "qwen", words) as ResponseFormatTextJSONSchemaConfig }
   })).output_text;
-  console.log(qwen_output);
-  console.log("\n\n\n openai end qwen end \n\n\n")
-  return qwen_output
-}
-async function getMeaningsFromOpenAICF(words: string[], lang: string, model: [string, string], translation_lang: string){
-  console.log("\n\n\n openai start")
-  const openai_output = (await client.responses.create({
-    model: model[0],
-    max_output_tokens: 4000,
-    input: get_input(lang, translation_lang, words, "openai"),
-    instructions: `You are a native ${lang} people explaining in accurate words the meaning of a ${lang} word using learner's language which is ${translation_lang}, Avoid trailing spaces`,
-    temperature: 0.1,
-  })).output_text;
-  console.log(openai_output);
-  console.log("\n\n\n openai end qwen start \n\n\n")
-  const chat_completion = [
-    {role: "system", content: `You are a native ${lang} people explaining in accurate words the meaning of a ${lang} word using learner's language which is ${translation_lang}, Respond in json format`},
-    {role: "user", content: get_input(lang, translation_lang, words, "qwen", openai_output)}
-  ];
-  const cf_output = (await env.AI.run(model[1], {
-    model: model[1],
-    max_completion_tokens: 10000,
-    messages: chat_completion,
-    temperature: 0.2,
-    response_format: {type: "json_schema", json_schema: jsonWordSchema(lang, translation_lang, "qwen", words)}
-  }));
-  console.log(cf_output);
-  console.log("\n\n\n openai end qwen end \n\n\n")
-  return cf_output
 }
 async function generateAudio(text: string, lang: string, male: boolean){
   const client = new SpeechifyClient({ token: env.SPEECHIFY_API_KEY });
@@ -136,51 +98,39 @@ export const POST = (async ({ request, cookies }) => {
       }),
     );
   }
-  const list_of_models: (["gemini", string] | ["openai", [string, string]] | ["openai_cf", [string, string]])[] = [
-                          ["openai_cf", ["openai/gpt-oss-20b", "@cf/qwen/qwen3.8-27b"]],
-                          ["gemini", "gemini-3.5-flash-lite"],
+  const list_of_models: (["gemini", string] | ["openai", [string, string]])[] = [["gemini", "gemini-3.5-flash-lite"],
                           ["openai", ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]],
                           ["gemini", "gemini-3.1-flash-lite"],
+                          ["openai", ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]],
                           ["gemini", "gemini-4-hydrogen"],
-                          ["openai", ["openai/gpt-oss-20b", "qwen/qwen3.8-27b"]],
+                          ["openai", ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"]],
                           ["gemini", "gemini-3.8-flash"]];
   let context_aware_meanings = null;
   let madeWithOpenAI = null;
   for(const model of list_of_models){
     try{
       if(model[0] == "openai"){
-        madeWithOpenAI = true;
         context_aware_meanings = await getMeaningsFromOpenAI(
           words_to_add.words,
           words_to_add.lang,
           model[1],
           words_to_add.translation_lang
         );
-      } else if(model[0] == "gemini"){
-        madeWithOpenAI = false;
+        madeWithOpenAI = true;
+      } else{
         context_aware_meanings = await getMeanings(
           words_to_add.words,
           words_to_add.lang,
           model[1],
           words_to_add.translation_lang
         );
-        console.log(context_aware_meanings);
-      } else if(model[0] == "openai_cf"){
-        madeWithOpenAI = true;
-        context_aware_meanings = await getMeaningsFromOpenAICF(
-          words_to_add.words,
-          words_to_add.lang,
-          model[1],
-          words_to_add.translation_lang
-        );
+        madeWithOpenAI = false;
       }
       break;
     } catch(e){
-      console.log(madeWithOpenAI == true ? "openai ou cf: " : "gemini: ", String(e).slice(0, 150));
       continue;
     }
   }
-  console.log("finish models: ", context_aware_meanings);
   if(!(context_aware_meanings)){
     return new Response(
       JSON.stringify({
