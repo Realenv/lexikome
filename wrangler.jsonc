@@ -51,6 +51,10 @@
 			"preview_id": "cc8d93c0fb484c44956b2a64b3d5171b"
 		}
 	],
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
 	"secrets": {
 		"required": [
 			"GEMINI_API_KEY",
